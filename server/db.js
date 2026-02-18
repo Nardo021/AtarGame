@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'atar.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'app.db');
 let sqliteDb = null;
 let wrapper = null;
 
@@ -11,8 +11,7 @@ function persist() {
     const data = sqliteDb.export();
     const dir = path.dirname(DB_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+    fs.writeFileSync(DB_PATH, Buffer.from(data));
   } catch (e) {
     console.error('DB persist error:', e.message);
   }
@@ -42,7 +41,7 @@ function wrap(db) {
           try {
             if (args.length) st.bind(args);
             st.step();
-            let lastInsertRowid = undefined;
+            let lastInsertRowid;
             try {
               const r = db.exec('SELECT last_insert_rowid() AS id');
               if (r.length && r[0].values && r[0].values[0]) lastInsertRowid = r[0].values[0][0];
@@ -85,7 +84,7 @@ function wrap(db) {
 }
 
 function getDb() {
-  if (!wrapper) throw new Error('数据库未初始化，请先调用 init()');
+  if (!wrapper) throw new Error('Database not initialized');
   return wrapper;
 }
 

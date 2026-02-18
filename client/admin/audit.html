@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>审计日志 - Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+  <div class="admin-wrap">
+    <div class="nav">
+      <a href="index.html">用户</a>
+      <a href="story.html">剧情</a>
+      <a href="config.html">配置</a>
+      <a href="audit.html">审计</a>
+      <a href="broadcast.html">广播</a>
+      <a href="analytics.html">分析</a>
+      <a href="#" class="logout" id="logout">退出</a>
+    </div>
+    <h1>审计日志</h1>
+    <div class="toolbar">
+      <button id="btn-prev">上一页</button>
+      <span id="page-info"></span>
+      <button id="btn-next">下一页</button>
+    </div>
+    <table id="audit-list">
+      <thead><tr><th>ID</th><th>时间</th><th>管理员</th><th>操作</th><th>目标用户</th><th>详情</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script src="admin.js"></script>
+  <script>
+    var offset = 0;
+    var limit = 50;
+    var total = 0;
+
+    function loadAudit() {
+      AdminAPI.api('/api/admin/audit?limit=' + limit + '&offset=' + offset).then(function (data) {
+        total = data.total || 0;
+        document.getElementById('page-info').textContent = '共 ' + total + ' 条，当前 ' + (offset + 1) + '-' + Math.min(offset + limit, total);
+        var tbody = document.querySelector('#audit-list tbody');
+        tbody.innerHTML = '';
+        (data.logs || []).forEach(function (r) {
+          var detail = (r.detail_json || '').slice(0, 60);
+          tbody.innerHTML += '<tr><td>' + r.id + '</td><td>' + (r.ts || '') + '</td><td>' + (r.admin_username || '') + '</td><td>' + (r.action || '') + '</td><td>' + (r.target_user_id != null ? r.target_user_id : '') + '</td><td>' + detail + '</td></tr>';
+        });
+      }).catch(function () {});
+    }
+
+    document.getElementById('btn-prev').onclick = function () {
+      offset = Math.max(0, offset - limit);
+      loadAudit();
+    };
+    document.getElementById('btn-next').onclick = function () {
+      if (offset + limit < total) { offset += limit; loadAudit(); }
+    };
+    document.getElementById('logout').onclick = function () {
+      AdminAPI.api('/api/admin/logout', 'POST').then(function () { window.location.href = 'login.html'; });
+    };
+
+    AdminAPI.checkAdmin().then(loadAudit);
+  </script>
+</body>
+</html>

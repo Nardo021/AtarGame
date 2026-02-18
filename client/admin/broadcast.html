@@ -3,48 +3,57 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>广播 - ATAR 管理后台</title>
+  <title>广播 - Admin</title>
   <link rel="stylesheet" href="admin.css"/>
-  <script src="../i18n.js"></script>
-  <script src="admin-auth.js"></script>
 </head>
 <body>
   <div class="admin-wrap">
-    <aside class="admin-sidebar">
-      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
-      <nav class="admin-sidebar-nav">
-        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
-        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
-        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
-        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
-        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
-        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
-        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
-        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
-      </nav>
-      <div class="admin-sidebar-bottom">
-        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
-        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
-        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
-      </div>
-    </aside>
-    <main class="admin-main">
-      <header class="admin-header"><span class="admin-header-title">全局广播</span></header>
-      <div class="admin-content">
-        <div class="section">
-          <p>标题 <input id="broadcast-title" placeholder="标题"/> 内容 <input id="broadcast-body" placeholder="内容"/> <button id="btn-broadcast">发布</button></p>
-        </div>
-      </div>
-    </main>
+    <div class="nav">
+      <a href="index.html">用户</a>
+      <a href="story.html">剧情</a>
+      <a href="config.html">配置</a>
+      <a href="audit.html">审计</a>
+      <a href="broadcast.html">广播</a>
+      <a href="analytics.html">分析</a>
+      <a href="#" class="logout" id="logout">退出</a>
+    </div>
+    <h1>全局广播</h1>
+    <div id="msg"></div>
+    <div class="form-group">
+      <label>标题</label>
+      <input type="text" id="broadcast-title" placeholder="标题" required/>
+    </div>
+    <div class="form-group">
+      <label>内容</label>
+      <textarea id="broadcast-body" placeholder="正文"></textarea>
+    </div>
+    <div class="form-group">
+      <label>过期时间（可选，ISO 或留空永久）</label>
+      <input type="text" id="broadcast-expires" placeholder="例如 2026-12-31T23:59:59"/>
+    </div>
+    <button id="btn-broadcast" class="primary">发布</button>
   </div>
-  <script src="admin-common.js"></script>
-  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="admin.js"></script>
   <script>
-    document.getElementById('btn-broadcast').onclick=function(){
-      var t=document.getElementById('broadcast-title').value, b=document.getElementById('broadcast-body').value;
-      if(!t) return alert('输入标题');
-      fetch('/api/admin/broadcast',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,body:b})}).then(function(r){if(!r.ok) return r.json().then(function(j){throw new Error(j.error);}); alert('已发布');}).catch(function(e){alert(e.message);});
+    function showMsg(text, isError) {
+      var el = document.getElementById('msg');
+      el.className = 'msg ' + (isError ? 'error' : 'success');
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+    document.getElementById('btn-broadcast').onclick = function () {
+      var title = document.getElementById('broadcast-title').value.trim();
+      var body = document.getElementById('broadcast-body').value.trim();
+      var expires = document.getElementById('broadcast-expires').value.trim() || null;
+      if (!title) { showMsg('请输入标题', true); return; }
+      AdminAPI.api('/api/admin/broadcast', 'POST', { title: title, body: body, expires_at: expires }).then(function () {
+        showMsg('已发布');
+      }).catch(function (e) { showMsg(e.message, true); });
     };
+    document.getElementById('logout').onclick = function () {
+      AdminAPI.api('/api/admin/logout', 'POST').then(function () { window.location.href = 'login.html'; });
+    };
+    AdminAPI.checkAdmin();
   </script>
 </body>
 </html>

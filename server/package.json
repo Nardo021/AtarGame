@@ -1,7 +1,7 @@
 {
-  "name": "atar-game-server",
+  "name": "atar-backend",
   "version": "1.0.0",
-  "description": "Web Galgame/VN 后端",
+  "description": "Node.js + Express + SQLite 后端，静态托管 /client",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,6 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.4.0",
     "jsonwebtoken": "^9.0.2",
-    "path": "^0.12.7",
     "sql.js": "^1.11.0"
   }
 }

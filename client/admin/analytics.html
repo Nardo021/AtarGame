@@ -3,76 +3,88 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>运营分析 - ATAR 管理后台</title>
+  <title>运营分析 - Admin</title>
   <link rel="stylesheet" href="admin.css"/>
-  <script src="../i18n.js"></script>
-  <script src="admin-auth.js"></script>
   <style>
-    .chart-wrap { background: var(--adm-surface); border: 1px solid var(--adm-border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    canvas { max-width: 100%; height: auto; }
+    .chart-box { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .chart-box h4 { margin: 0 0 8px 0; font-size: 0.95rem; }
+    .chart-box svg { width: 100%; height: 220px; display: block; }
+    .heat-table { font-size: 0.8rem; }
+    .heat-table th, .heat-table td { padding: 6px 8px; min-width: 50px; }
+    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; }
   </style>
 </head>
 <body>
   <div class="admin-wrap">
-    <aside class="admin-sidebar">
-      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
-      <nav class="admin-sidebar-nav">
-        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
-        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
-        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
-        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
-        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
-        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
-        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
-        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
-      </nav>
-      <div class="admin-sidebar-bottom">
-        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
-        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
-        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+    <div class="nav">
+      <a href="index.html">用户</a>
+      <a href="story.html">剧情</a>
+      <a href="config.html">配置</a>
+      <a href="audit.html">审计</a>
+      <a href="broadcast.html">广播</a>
+      <a href="analytics.html">分析</a>
+      <a href="#" class="logout" id="logout">退出</a>
+    </div>
+    <h1>运营分析</h1>
+    <div class="toolbar">
+      <label>时间范围（可选）</label>
+      <input type="date" id="range-from"/>
+      <input type="date" id="range-to"/>
+      <button id="btn-refresh" class="primary">刷新</button>
+    </div>
+    <div class="analytics-grid">
+      <div class="chart-box">
+        <h4>留存 D1/D7/D30</h4>
+        <svg id="chart-retention"></svg>
       </div>
-    </aside>
-    <main class="admin-main">
-      <header class="admin-header"><span class="admin-header-title">运营分析</span></header>
-      <div class="admin-content">
-        <h1>运营分析看板</h1>
-        <div class="section">
-          <h2>29) 留存分析 D1/D7/D30</h2>
-          <p><button id="btn-retention">加载</button></p>
-          <div id="retention-data"></div>
-        </div>
-        <div class="section">
-          <h2>30) 节点流热图（简化有向）</h2>
-          <p><button id="btn-node-flow">加载</button></p>
-          <div id="node-flow-data"></div>
-        </div>
-        <div class="section">
-          <h2>31) 行为漏斗</h2>
-          <p><button id="btn-funnel">加载</button></p>
-          <div id="funnel-data"></div>
-        </div>
-        <div class="section">
-          <h2>32) 结局分布</h2>
-          <p><button id="btn-endings">加载</button></p>
-          <canvas id="chart-endings" width="400" height="200"></canvas>
-          <div id="endings-data"></div>
-        </div>
-        <div class="section">
-          <h2>33) 事件 Top / 强制事件（死亡率/劝退点）</h2>
-          <p><button id="btn-events">加载</button></p>
-          <div id="events-data"></div>
-        </div>
-        <div class="section">
-          <h2>35) 时间段活跃</h2>
-          <p><button id="btn-activity">加载</button></p>
-          <canvas id="chart-activity" width="600" height="200"></canvas>
-          <div id="activity-data"></div>
-        </div>
+      <div class="chart-box">
+        <h4>结局分布</h4>
+        <svg id="chart-endings"></svg>
       </div>
-    </main>
+      <div class="chart-box">
+        <h4>活跃时段（按小时）</h4>
+        <svg id="chart-activity-hour"></svg>
+      </div>
+      <div class="chart-box">
+        <h4>事件 Top</h4>
+        <svg id="chart-events"></svg>
+      </div>
+      <div class="chart-box">
+        <h4>行为热力图（地点 × 行为类型）</h4>
+        <div id="chart-heatmap"></div>
+      </div>
+      <div class="chart-box">
+        <h4>节点流（node_id）</h4>
+        <svg id="chart-nodeflow"></svg>
+      </div>
+      <div class="chart-box">
+        <h4>行为漏斗</h4>
+        <div id="chart-funnel"></div>
+      </div>
+      <div class="chart-box">
+        <h4>劝退点（强制事件后 3 天未活跃）</h4>
+        <div id="chart-churn"></div>
+      </div>
+      <div class="chart-box">
+        <h4>A/B 组对比（atar 均值、留存、结局分布）</h4>
+        <div id="chart-ab"></div>
+      </div>
+    </div>
   </div>
-  <script src="admin-common.js"></script>
-  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="admin.js"></script>
   <script src="analytics.js"></script>
+  <script>
+    document.getElementById('btn-refresh').onclick = function () { AnalyticsCharts.loadAll(); };
+    document.getElementById('logout').onclick = function () {
+      AdminAPI.api('/api/admin/logout', 'POST').then(function () { window.location.href = 'login.html'; });
+    };
+    AdminAPI.checkAdmin().then(function () {
+      var today = new Date().toISOString().slice(0, 10);
+      var monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      if (!document.getElementById('range-from').value) document.getElementById('range-from').value = monthAgo;
+      if (!document.getElementById('range-to').value) document.getElementById('range-to').value = today;
+      AnalyticsCharts.loadAll();
+    });
+  </script>
 </body>
 </html>

@@ -3,5 +3,5 @@
   <path d="M 60 115 L 140 115 L 135 285 L 65 285 Z" fill="#5C4033"/>
   <rect x="95" y="100" width="10" height="80" fill="#8B4513"/>
   <path d="M 65 285 L 60 380 L 85 380 L 90 285 M 135 285 L 140 380 L 115 380 L 110 285" fill="#2E5C3E"/>
-  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12"></text>
+  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12" font-family="sans-serif">老师</text>
 </svg>

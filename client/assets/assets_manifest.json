@@ -1,18 +1,18 @@
 {
   "backgrounds": [
-    "assets/bg-classroom.svg",
-    "assets/bg-corridor.svg",
-    "assets/bg-field.svg",
-    "assets/bg-clubroom.svg",
-    "assets/bg-bedroom.svg",
-    "assets/bg-internet_cafe.svg",
-    "assets/bg-map.svg"
+    { "id": "bg-classroom", "path": "assets/bg-classroom.svg" },
+    { "id": "bg-corridor", "path": "assets/bg-corridor.svg" },
+    { "id": "bg-field", "path": "assets/bg-field.svg" },
+    { "id": "bg-clubroom", "path": "assets/bg-clubroom.svg" },
+    { "id": "bg-bedroom", "path": "assets/bg-bedroom.svg" },
+    { "id": "bg-internet_cafe", "path": "assets/bg-internet_cafe.svg" },
+    { "id": "bg-map", "path": "assets/bg-map.svg" }
   ],
   "characters": [
-    "assets/char-player.svg",
-    "assets/char-teacher.svg",
-    "assets/char-classmate.svg",
-    "assets/char-club_senior.svg",
-    "assets/char-cafe_staff.svg"
+    { "id": "char-player", "path": "assets/char-player.svg" },
+    { "id": "char-teacher", "path": "assets/char-teacher.svg" },
+    { "id": "char-classmate", "path": "assets/char-classmate.svg" },
+    { "id": "char-club_senior", "path": "assets/char-club_senior.svg" },
+    { "id": "char-cafe_staff", "path": "assets/char-cafe_staff.svg" }
   ]
 }

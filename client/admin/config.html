@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>配置与 A/B - Admin</title>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+  <div class="admin-wrap">
+    <div class="nav">
+      <a href="index.html">用户</a>
+      <a href="story.html">剧情</a>
+      <a href="config.html">配置</a>
+      <a href="audit.html">审计</a>
+      <a href="broadcast.html">广播</a>
+      <a href="analytics.html">分析</a>
+      <a href="#" class="logout" id="logout">退出</a>
+    </div>
+    <h1>游戏配置</h1>
+    <p>按 key 唯一；ab_group 可选（A/B 组）。</p>
+    <div id="msg"></div>
+    <table id="config-list">
+      <thead><tr><th>key</th><th>value_json</th><th>ab_group</th><th>updated_at</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <h3>新增/覆盖</h3>
+    <div class="form-group">
+      <label>key</label>
+      <input type="text" id="config-key" placeholder="例如 rate"/>
+    </div>
+    <div class="form-group">
+      <label>value_json（合法 JSON）</label>
+      <input type="text" id="config-value" placeholder='例如 "0.5" 或 {"a":1}'/>
+    </div>
+    <div class="form-group">
+      <label>ab_group（可选）</label>
+      <input type="text" id="config-ab" placeholder="A / B 或留空"/>
+    </div>
+    <button id="btn-config-put" class="primary">保存</button>
+    <h3>配置变更历史</h3>
+    <table id="config-versions">
+      <thead><tr><th>时间</th><th>操作</th><th>详情</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <h3>A/B 分配</h3>
+    <div class="form-group">
+      <label>用户 ID</label>
+      <input type="number" id="ab-user-id" placeholder="用户 ID"/>
+    </div>
+    <div class="form-group">
+      <label>组名</label>
+      <input type="text" id="ab-group" placeholder="A 或 B"/>
+    </div>
+    <button id="btn-ab-assign" class="primary">分配</button>
+  </div>
+  <script src="admin.js"></script>
+  <script>
+    function showMsg(text, isError) {
+      var el = document.getElementById('msg');
+      el.className = 'msg ' + (isError ? 'error' : 'success');
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+
+    function loadConfig() {
+      AdminAPI.api('/api/admin/config').then(function (data) {
+        var tbody = document.querySelector('#config-list tbody');
+        tbody.innerHTML = '';
+        (data.configs || []).forEach(function (c) {
+          tbody.innerHTML += '<tr><td>' + (c.key || '') + '</td><td>' + (c.value_json || '').slice(0, 80) + '</td><td>' + (c.ab_group || '') + '</td><td>' + (c.updated_at || '') + '</td></tr>';
+        });
+      });
+      AdminAPI.api('/api/admin/config/versions').then(function (data) {
+        var tbody = document.querySelector('#config-versions tbody');
+        tbody.innerHTML = '';
+        (data.versions || []).forEach(function (v) {
+          var detail = '';
+          try { var d = JSON.parse(v.detail_json || '{}'); detail = d.key || ''; } catch (e) {}
+          tbody.innerHTML += '<tr><td>' + (v.ts || '') + '</td><td>' + (v.admin_username || '') + '</td><td>' + detail + '</td></tr>';
+        });
+      }).catch(function () {});
+    }
+
+    document.getElementById('btn-config-put').onclick = function () {
+      var key = document.getElementById('config-key').value.trim();
+      var val = document.getElementById('config-value').value.trim();
+      var ab = document.getElementById('config-ab').value.trim() || null;
+      if (!key) { showMsg('请输入 key', true); return; }
+      var v = AdminAPI.jsonValidate(val);
+      if (!v.ok) { showMsg('value_json 无效', true); return; }
+      AdminAPI.api('/api/admin/config', 'PUT', { key: key, value_json: val, ab_group: ab }).then(function () {
+        showMsg('已保存');
+        loadConfig();
+      }).catch(function (e) { showMsg(e.message, true); });
+    };
+
+    document.getElementById('btn-ab-assign').onclick = function () {
+      var uid = document.getElementById('ab-user-id').value.trim();
+      var group = document.getElementById('ab-group').value.trim();
+      if (!uid || !group) { showMsg('请输入用户 ID 和组名', true); return; }
+      AdminAPI.api('/api/admin/ab/assign', 'POST', { user_id: parseInt(uid, 10), group_name: group }).then(function () {
+        showMsg('已分配');
+      }).catch(function (e) { showMsg(e.message, true); });
+    };
+
+    document.getElementById('logout').onclick = function () {
+      AdminAPI.api('/api/admin/logout', 'POST').then(function () { window.location.href = 'login.html'; });
+    };
+
+    AdminAPI.checkAdmin().then(loadConfig);
+  </script>
+</body>
+</html>

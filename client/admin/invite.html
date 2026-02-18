@@ -43,7 +43,7 @@
     </main>
   </div>
   <script src="admin-common.js"></script>
-  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/admin/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
   <script src="admin-invite.js"></script>
 </body>
 </html>

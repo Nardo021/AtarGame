@@ -7,5 +7,5 @@
   <rect x="0" y="250" width="800" height="350" fill="url(#f_grass)"/>
   <ellipse cx="400" cy="400" rx="120" ry="80" fill="#C0C0C0" opacity="0.9"/>
   <rect x="200" y="180" width="400" height="30" fill="#8B4513" rx="4"/>
-  <text x="400" y="300" text-anchor="middle" fill="#fff" font-size="14">Í:</text>
+  <text x="400" y="300" text-anchor="middle" fill="#1B5E20" font-size="18" font-family="sans-serif">??</text>
 </svg>

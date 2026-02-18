@@ -18,6 +18,9 @@
     .lang-switch { position: absolute; top: 12px; right: 12px; font-size: 0.85rem; }
     .lang-switch a { color: #78c4ff; margin: 0 4px; }
     .lang-switch a.active { color: #fff; }
+    .board-msg { margin-bottom: 12px; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; }
+    .board-msg.error { background: rgba(180,50,50,0.25); color: #ff6b6b; }
+    .board-msg.success { background: rgba(40,120,80,0.25); color: #8fec8f; }
   </style>
 </head>
 <body>
@@ -25,9 +28,17 @@
   <div class="board-page">
     <a href="index.html" class="back" data-i18n="back_game">← 返回游戏</a>
     <h1 data-i18n="board_title">留言板</h1>
+    <div id="board-msg" class="board-msg" style="display:none;"></div>
     <div class="board-form">
       <textarea id="post-content" data-i18n-placeholder="board_placeholder" placeholder="说点什么…（需登录）"></textarea>
       <button id="btn-post" data-i18n="board_post">发布</button>
+    </div>
+    <div class="board-toolbar">
+      <input type="text" id="board-keyword" placeholder="关键词筛选" style="padding:6px 10px;margin-right:8px;background:#0f0f23;color:#eee;border:1px solid #444;border-radius:6px;"/>
+      <button id="board-search" type="button">搜索</button>
+      <span id="board-page-info" style="margin-left:12px;color:#888;"></span>
+      <button id="board-prev" type="button" style="margin-left:8px;">上一页</button>
+      <button id="board-next" type="button">下一页</button>
     </div>
     <div class="board-list" id="board-list"></div>
   </div>

@@ -2,5 +2,5 @@
   <ellipse cx="100" cy="80" rx="35" ry="40" fill="#FFE4C4"/>
   <path d="M 68 118 L 132 118 L 128 278 L 72 278 Z" fill="#87CEEB"/>
   <path d="M 72 278 L 68 378 L 92 378 L 96 278 M 128 278 L 132 378 L 108 378 L 104 278" fill="#2E5C3E"/>
-  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12">L</text>
+  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12" font-family="sans-serif">同桌</text>
 </svg>

@@ -3,70 +3,51 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>管理员登录 - ATAR</title>
+  <title>管理后台登录 - ATAR</title>
   <link rel="stylesheet" href="admin.css"/>
-  <style>
-    .admin-login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #0a0a18 0%, #0f0f23 100%); padding: 20px; }
-    .admin-login-box { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; width: 320px; border: 1px solid rgba(255,255,255,0.1); }
-    .admin-login-box h1 { margin: 0 0 1.5rem; text-align: center; font-size: 1.35rem; }
-    .admin-login-box input { width: 100%; margin-bottom: 12px; padding: 10px 12px; background: #1a1a2e; border: 1px solid #444; border-radius: 6px; color: #eee; }
-    .admin-login-box button { width: 100%; padding: 12px; margin-top: 8px; background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
-    .admin-login-box button:hover { background: #ff6b6b; }
-    .admin-login-box .error { color: #e94560; font-size: 0.9rem; margin-top: 8px; text-align: center; }
-    .admin-login-box .back { display: block; text-align: center; margin-top: 1rem; font-size: 0.9rem; }
-    .admin-login-lang { position: absolute; top: 12px; right: 12px; font-size: 0.85rem; }
-    .admin-login-lang a { color: #78c4ff; margin: 0 4px; }
-    .admin-login-lang a.active { color: #fff; }
-  </style>
 </head>
-<body>
-  <div class="admin-login-lang"><a href="#" id="admin-lang-zh">中文</a> | <a href="#" id="admin-lang-en">EN</a></div>
+<body class="admin-login-page">
   <div class="admin-login-wrap">
-    <div class="admin-login-box">
-      <h1 data-i18n="admin_login_title">管理员登录</h1>
-      <input type="text" id="admin-username" data-i18n-placeholder="admin_login_username" placeholder="用户名" autocomplete="username"/>
-      <input type="password" id="admin-password" data-i18n-placeholder="admin_login_password" placeholder="密码" autocomplete="current-password"/>
-      <div id="admin-login-error" class="error" style="display:none;"></div>
-      <button id="admin-btn-login" data-i18n="admin_login_btn">登录</button>
-      <a href="../index.html" class="back" data-i18n="admin_back_game">← 返回游戏</a>
+    <div class="admin-login-card">
+      <h1 class="admin-login-title">ATAR 管理后台</h1>
+      <p class="admin-login-desc">仅限管理员登录，与游戏账号分离</p>
+      <input type="text" id="username" placeholder="管理员用户名" autocomplete="username"/>
+      <input type="password" id="password" placeholder="密码" autocomplete="current-password"/>
+      <div id="error" class="error" style="display:none;"></div>
+      <button id="btn-login">登录</button>
+      <a href="../index.html" class="back">← 返回游戏</a>
     </div>
   </div>
-  <script src="../i18n.js"></script>
+  <script src="admin.js"></script>
   <script>
-    function updateLoginTitle() { document.title = I18n.t('admin_login_title') + ' - ATAR'; }
-      document.addEventListener('DOMContentLoaded', function () {
-        I18n.apply();
-        updateLoginTitle();
-        document.getElementById('admin-lang-zh').onclick = function (e) { e.preventDefault(); I18n.setLang('zh'); I18n.apply(); updateLoginTitle(); document.getElementById('admin-lang-zh').classList.add('active'); document.getElementById('admin-lang-en').classList.remove('active'); };
-        document.getElementById('admin-lang-en').onclick = function (e) { e.preventDefault(); I18n.setLang('en'); I18n.apply(); updateLoginTitle(); document.getElementById('admin-lang-en').classList.add('active'); document.getElementById('admin-lang-zh').classList.remove('active'); };
-        if (I18n.getLang() === 'en') document.getElementById('admin-lang-en').classList.add('active'); else document.getElementById('admin-lang-zh').classList.add('active');
-      function api(path, method, body) {
-        var opts = { method: method || 'GET', credentials: 'include', headers: {} };
-        if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
-        return fetch(path, opts).then(function (r) {
-          if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || r.statusText); });
-          return r.json();
+    document.getElementById('btn-login').onclick = function () {
+      var u = document.getElementById('username').value.trim();
+      var p = document.getElementById('password').value;
+      var err = document.getElementById('error');
+      err.style.display = 'none';
+      if (!u || !p) { err.textContent = '请输入用户名和密码'; err.style.display = 'block'; return; }
+      fetch('/api/admin/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      })
+        .then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok) throw new Error(data.error || '登录失败');
+            if (data.user && data.user.role === 'admin') {
+              window.location.href = 'index.html';
+            } else {
+              err.textContent = '需要管理员账号';
+              err.style.display = 'block';
+            }
+          });
+        })
+        .catch(function (e) {
+          err.textContent = e.message || '登录失败';
+          err.style.display = 'block';
         });
-      }
-      document.getElementById('admin-btn-login').onclick = function () {
-        var u = document.getElementById('admin-username').value.trim();
-        var p = document.getElementById('admin-password').value;
-        var errEl = document.getElementById('admin-login-error');
-        errEl.style.display = 'none';
-        if (!u || !p) { errEl.textContent = I18n.t('admin_err_enter_cred'); errEl.style.display = 'block'; return; }
-        api('/api/auth/login', 'POST', { username: u, password: p, rememberMe: true }).then(function (r) {
-          if (r.user && r.user.role === 'admin') {
-            window.location.href = 'index.html';
-          } else {
-            errEl.textContent = I18n.t('admin_err_need_admin');
-            errEl.style.display = 'block';
-          }
-        }).catch(function (e) {
-          errEl.textContent = e.message || I18n.t('admin_err_login_fail');
-          errEl.style.display = 'block';
-        });
-      };
-    });
+    };
   </script>
 </body>
 </html>

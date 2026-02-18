@@ -5,9 +5,10 @@
   <rect width="800" height="600" fill="url(#bed_wall)"/>
   <rect x="100" y="300" width="400" height="200" fill="#8B4513" stroke="#654321"/>
   <rect x="120" y="320" width="360" height="160" fill="#DEB887"/>
-  <text x="300" y="410" text-anchor="middle" fill="#333" font-size="14">ä</text>
+  <text x="300" y="410" text-anchor="middle" fill="#333" font-size="14" font-family="sans-serif">?</text>
   <rect x="500" y="350" width="150" height="150" fill="#556B2F"/>
-  <text x="575" y="435" text-anchor="middle" fill="#FFF" font-size="12">fL</text>
+  <text x="575" y="435" text-anchor="middle" fill="#FFF" font-size="12" font-family="sans-serif">??</text>
   <rect x="50" y="100" width="80" height="120" fill="#A0522D"/>
-  <text x="90" y="175" text-anchor="middle" fill="#FFF" font-size="11">c‹</text>
+  <text x="90" y="175" text-anchor="middle" fill="#FFF" font-size="11" font-family="sans-serif">?</text>
+  <text x="400" y="560" text-anchor="middle" fill="#5D4037" font-size="14" font-family="sans-serif">??</text>
 </svg>

@@ -3,52 +3,196 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>首页 - ATAR 管理后台</title>
+  <title>用户管理 - Admin</title>
   <link rel="stylesheet" href="admin.css"/>
-  <script src="../i18n.js"></script>
-  <script src="admin-auth.js"></script>
 </head>
 <body>
   <div class="admin-wrap">
-    <aside class="admin-sidebar">
-      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
-      <nav class="admin-sidebar-nav">
-        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
-        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
-        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
-        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
-        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
-        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
-        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
-        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
-      </nav>
-      <div class="admin-sidebar-bottom">
-        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
-        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
-        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+    <div class="nav">
+      <a href="index.html">用户</a>
+      <a href="story.html">剧情</a>
+      <a href="config.html">配置</a>
+      <a href="audit.html">审计</a>
+      <a href="broadcast.html">广播</a>
+      <a href="analytics.html">分析</a>
+      <a href="#" class="logout" id="logout">退出</a>
+    </div>
+    <h1>用户管理</h1>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="搜索用户名"/>
+      <button id="btn-search">搜索</button>
+      <button id="btn-add" class="primary">新建用户</button>
+    </div>
+    <div id="user-list"></div>
+    <div class="pagination" id="pagination"></div>
+    <div id="detail-panel" class="detail-panel" style="display:none;">
+      <h3>用户详情 <span id="detail-username"></span></h3>
+      <p>ID: <span id="detail-id"></span> | 角色: <span id="detail-role"></span> | 禁用: <span id="detail-disabled"></span> | 冻结: <span id="detail-frozen"></span></p>
+      <div class="actions-inline">
+        <button id="btn-disable">禁用/启用</button>
+        <button id="btn-reset-pw">重置密码</button>
+        <button id="btn-freeze">冻结/解冻</button>
+        <button id="btn-impersonate" class="primary">冒充进入游戏</button>
+        <button id="btn-push-event">注入事件</button>
       </div>
-    </aside>
-    <main class="admin-main">
-      <header class="admin-header">
-        <span class="admin-header-title">首页</span>
-      </header>
-      <div class="admin-content">
-        <h1>概览</h1>
-        <div class="section">
-          <h2>实时在线</h2>
-          <p><button id="btn-online">刷新</button> 最近 <input type="number" id="online-minutes" value="15" style="width:60px"/> 分钟有行动的用户</p>
-          <table><thead><tr><th>用户ID</th><th>用户名</th><th>最后活动</th></tr></thead><tbody id="online-body"></tbody></table>
-        </div>
+      <h4>存档</h4>
+      <div id="saves-list"></div>
+      <div id="save-edit" style="display:none;">
+        <textarea id="save-json" class="json-editor" placeholder="state_json 或 summary_json"></textarea>
+        <p class="json-hint">输入合法 JSON，将写入当前选中槽位（会先备份到审计）</p>
+        <button id="btn-save-put" class="primary">保存存档</button>
       </div>
-    </main>
+      <button id="btn-detail-close">关闭</button>
+    </div>
   </div>
-  <script src="admin-common.js"></script>
-  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
   <script src="admin.js"></script>
   <script>
-    (function(){ var api=function(p,method,body){ var o={method:method||'GET',credentials:'include',headers:{}}; if(body!==undefined){o.headers['Content-Type']='application/json';o.body=typeof body==='string'?body:JSON.stringify(body);} return fetch(p,o).then(function(r){if(!r.ok)return r.json().then(function(j){throw new Error(j.error||r.statusText);}); return r.json();}); };
-    document.getElementById('btn-online').onclick=function(){ var m=document.getElementById('online-minutes').value||15; api('/api/admin/online?minutes='+m).then(function(r){ var t=document.getElementById('online-body'); t.innerHTML=(r.online||[]).map(function(u){return '<tr><td>'+u.user_id+'</td><td>'+(u.username||'')+'</td><td>'+(u.last_ts||'')+'</td></tr>';}).join(''); }).catch(function(e){alert(e.message);}); };
-    })();
+    var currentPage = 1;
+    var currentSearch = '';
+    var currentUserId = null;
+    var currentSlot = null;
+
+    function renderUsers(data) {
+      var list = document.getElementById('user-list');
+      if (!data.users.length) { list.innerHTML = '<p>无用户</p>'; return; }
+      var html = '<table><thead><tr><th>ID</th><th>用户名</th><th>角色</th><th>禁用</th><th>冻结</th><th>创建时间</th><th>操作</th></tr></thead><tbody>';
+      data.users.forEach(function (u) {
+        html += '<tr><td>' + u.id + '</td><td>' + (u.username || '') + '</td><td>' + (u.role || '') + '</td><td>' + (u.is_disabled ? '是' : '否') + '</td><td>' + (u.frozen ? '是' : '否') + '</td><td>' + (u.created_at || '') + '</td><td><button data-id="' + u.id + '" class="btn-detail">详情</button></td></tr>';
+      });
+      html += '</tbody></table>';
+      list.innerHTML = html;
+      list.querySelectorAll('.btn-detail').forEach(function (btn) {
+        btn.onclick = function () { openDetail(parseInt(btn.dataset.id, 10)); };
+      });
+    }
+
+    function renderPagination(total, limit, page) {
+      var el = document.getElementById('pagination');
+      var pages = Math.ceil(total / limit) || 1;
+      el.innerHTML = '共 ' + total + ' 条 ';
+      for (var i = 1; i <= pages; i++) {
+        var b = document.createElement('button');
+        b.textContent = i;
+        b.dataset.page = i;
+        if (i === page) b.disabled = true;
+        b.onclick = function () { loadUsers(currentSearch, parseInt(this.dataset.page, 10)); };
+        el.appendChild(b);
+      }
+    }
+
+    function loadUsers(search, page) {
+      currentSearch = search || currentSearch;
+      currentPage = page || currentPage;
+      var q = '?page=' + currentPage + '&limit=20';
+      if (currentSearch) q += '&search=' + encodeURIComponent(currentSearch);
+      AdminAPI.api('/api/admin/users' + q).then(function (data) {
+        renderUsers(data);
+        renderPagination(data.total, data.limit, data.page);
+      }).catch(function () {});
+    }
+
+    function openDetail(userId) {
+      currentUserId = userId;
+      var panel = document.getElementById('detail-panel');
+      panel.style.display = 'block';
+      document.getElementById('detail-id').textContent = userId;
+      AdminAPI.api('/api/admin/users').then(function (data) {
+        var u = data.users.find(function (x) { return x.id === userId; });
+        if (u) {
+          document.getElementById('detail-username').textContent = u.username;
+          document.getElementById('detail-role').textContent = u.role;
+          document.getElementById('detail-disabled').textContent = u.is_disabled ? '是' : '否';
+          document.getElementById('detail-frozen').textContent = u.frozen ? '是' : '否';
+        }
+      });
+      AdminAPI.api('/api/admin/users/' + userId + '/saves').then(function (data) {
+        var list = document.getElementById('saves-list');
+        if (!data.saves || !data.saves.length) { list.innerHTML = '<p>无存档</p>'; return; }
+        list.innerHTML = '<table><thead><tr><th>槽位</th><th>更新时间</th><th>操作</th></tr></thead><tbody>';
+        data.saves.forEach(function (s) {
+          list.innerHTML += '<tr><td>' + s.slot + '</td><td>' + (s.updated_at || '') + '</td><td><button data-slot="' + s.slot + '" class="btn-edit-save">编辑</button></td></tr>';
+        });
+        list.innerHTML += '</tbody></table>';
+        list.querySelectorAll('.btn-edit-save').forEach(function (btn) {
+          btn.onclick = function () {
+            currentSlot = parseInt(btn.dataset.slot, 10);
+            AdminAPI.api('/api/admin/users/' + userId + '/saves/' + currentSlot).then(function (r) {
+              document.getElementById('save-json').value = r.state_json || r.summary_json || '{}';
+              document.getElementById('save-edit').style.display = 'block';
+            });
+          };
+        });
+      }).catch(function () { document.getElementById('saves-list').innerHTML = '<p>加载失败</p>'; });
+    }
+
+    document.getElementById('btn-detail-close').onclick = function () {
+      document.getElementById('detail-panel').style.display = 'none';
+      document.getElementById('save-edit').style.display = 'none';
+    };
+
+    document.getElementById('btn-save-put').onclick = function () {
+      var raw = document.getElementById('save-json').value.trim();
+      var v = AdminAPI.jsonValidate(raw);
+      if (!v.ok) { alert('JSON 无效: ' + v.message); return; }
+      var body = {};
+      try {
+        var obj = JSON.parse(raw);
+        if (obj.atar != null || obj.date_iso) body.summary_json = obj;
+        else body.state_json = obj;
+      } catch (e) { body.state_json = raw; }
+      AdminAPI.api('/api/admin/users/' + currentUserId + '/saves/' + currentSlot, 'PUT', body).then(function () {
+        alert('已保存（旧版本已备份到审计）');
+        openDetail(currentUserId);
+      }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-impersonate').onclick = function () {
+      if (!currentUserId) return;
+      AdminAPI.api('/api/admin/users/' + currentUserId + '/impersonate', 'POST').then(function (r) {
+        window.location.href = r.redirect || '/';
+      }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-reset-pw').onclick = function () {
+      var pw = prompt('新密码（至少6位）');
+      if (!pw || pw.length < 6) return;
+      AdminAPI.api('/api/admin/users/' + currentUserId + '/reset-password', 'POST', { password: pw }).then(function () { alert('已重置'); }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-freeze').onclick = function () {
+      var frozen = confirm('当前用户是否已冻结？点确定切换为「解冻」，取消切换为「冻结」');
+      AdminAPI.api('/api/admin/users/' + currentUserId + '/freeze', 'POST', { frozen: !frozen }).then(function () { alert('已更新'); openDetail(currentUserId); loadUsers(); }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-disable').onclick = function () {
+      AdminAPI.api('/api/admin/users').then(function (data) {
+        var u = data.users.find(function (x) { return x.id === currentUserId; });
+        if (!u) return;
+        AdminAPI.api('/api/admin/users/' + currentUserId, 'PATCH', { is_disabled: !u.is_disabled }).then(function () { alert('已更新'); openDetail(currentUserId); loadUsers(); }).catch(function (e) { alert(e.message); });
+      });
+    };
+
+    document.getElementById('btn-push-event').onclick = function () {
+      var date = prompt('日期 YYYY-MM-DD', '2026-01-15');
+      var eventId = prompt('event_id', 'forced_test');
+      var eventType = prompt('event_type', 'forced');
+      if (!date || !eventId) return;
+      AdminAPI.api('/api/admin/users/' + currentUserId + '/push-event', 'POST', { date_iso: date, event_id: eventId, event_type: eventType, title: eventId }).then(function () { alert('已注入'); }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-add').onclick = function () {
+      var username = prompt('用户名');
+      var password = prompt('密码（至少6位）');
+      if (!username || !password) return;
+      AdminAPI.api('/api/admin/users', 'POST', { username: username, password: password, role: 'user' }).then(function () { loadUsers(); }).catch(function (e) { alert(e.message); });
+    };
+
+    document.getElementById('btn-search').onclick = function () { loadUsers(document.getElementById('search').value.trim(), 1); };
+    document.getElementById('logout').onclick = function () {
+      AdminAPI.api('/api/admin/logout', 'POST').then(function () { window.location.href = 'login.html'; });
+    };
+
+    AdminAPI.checkAdmin().then(function () { loadUsers(); });
   </script>
 </body>
 </html>

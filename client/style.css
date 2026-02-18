@@ -30,13 +30,23 @@ body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; bac
 .login-actions { display: flex; gap: 10px; margin-top: 1.25rem; }
 .login-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #e94560; color: #fff; cursor: pointer; font-size: 1rem; }
 .login-actions button:hover { background: #ff6b6b; }
+.login-error { margin-top: 10px; padding: 10px; background: rgba(233,69,96,0.2); color: #ff6b6b; border-radius: 8px; font-size: 0.9rem; }
 .login-links { margin-top: 1.25rem; text-align: center; font-size: 0.9rem; }
 .login-links a { color: #78c4ff; text-decoration: none; }
 .login-links a:hover { text-decoration: underline; }
 
-/* 游戏：MAP/SCENE 容器 */
+/* 游戏：MAP/SCENE 容器（预留底部操作栏、顶部 HUD 不遮挡可点区域） */
+:root {
+  --game-actions-height: 90px;
+  --hud-height: 48px;
+}
 .game-view-wrap {
-  position: fixed; inset: 0; z-index: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--game-actions-height);
+  z-index: 0;
 }
 .map-view, .scene-view {
   position: absolute; inset: 0;
@@ -49,21 +59,30 @@ body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; bac
 }
 .map-hotspot {
   position: absolute; pointer-events: auto; cursor: pointer;
-  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 8px; transition: background 0.2s;
+  background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 8px; transition: background 0.2s, border-color 0.2s;
 }
-.map-hotspot:hover { background: rgba(255,255,255,0.2); }
+.map-hotspot:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
 .game-bg {
-  position: absolute; inset: 0; background: url(assets/bg-classroom.svg) center/cover;
+  position: absolute; inset: 0; background: url(assets/bg-classroom.svg) center/cover; background-size: cover;
 }
+/* 立绘：左/右 */
+.char { position: absolute; bottom: 0; width: 40%; max-width: 320px; max-height: 85%; pointer-events: none; display: none; }
+.char img { width: 100%; height: auto; max-height: 100%; object-fit: contain; object-position: bottom; }
+.char-left { left: 0; }
+.char-right { right: 0; }
+.char.visible { display: block; }
 .transition-overlay {
   position: fixed; inset: 0; z-index: 9997; pointer-events: none;
   opacity: 0; transition: opacity 0.28s ease;
 }
 .transition-overlay.transition-visible { opacity: 1; pointer-events: auto; }
 .transition-overlay.transition-fade { background: #000; }
-.transition-overlay.transition-slide { background: #000; }
-.transition-overlay.transition-blur { background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
+.transition-overlay.transition-slide { background: #000; transform: translateX(0); }
+.transition-overlay.transition-slide.transition-visible { animation: slideOut 0.28s ease forwards; }
+@keyframes slideOut { to { opacity: 1; } }
+.transition-overlay.transition-blur { background: rgba(0,0,0,0.5); backdrop-filter: blur(0); transition: backdrop-filter 0.28s, opacity 0.28s; }
+.transition-overlay.transition-blur.transition-visible { backdrop-filter: blur(12px); opacity: 1; }
 .afk-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 5; display: flex; align-items: center; justify-content: center;
 }
@@ -74,14 +93,19 @@ body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; bac
 }
 .hud b { margin-left: 4px; color: #78c4ff; }
 
-/* 操作栏固定在底部 */
+/* 操作栏固定在底部，固定高度避免与对话框重叠 */
 .game-actions {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 12;
   display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center;
-  padding: 10px 12px; min-height: 52px;
+  padding: 10px 12px;
+  height: var(--game-actions-height);
+  max-height: var(--game-actions-height);
+  overflow-y: auto;
+  box-sizing: border-box;
   background: rgba(0,0,0,0.75); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(6px);
 }
 .game-actions button {
+  flex-shrink: 0;
   padding: 8px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.08); color: #eee; cursor: pointer; font-size: 0.9rem;
 }
 .game-actions button:hover { background: rgba(255,255,255,0.15); }
@@ -89,10 +113,10 @@ body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; bac
 
 /* 对话框在操作栏正上方，不重叠 */
 .dialogue-box {
-  position: fixed; left: 0; right: 0; bottom: 52px; z-index: 11;
+  position: fixed; left: 0; right: 0; bottom: var(--game-actions-height); z-index: 11;
   max-height: 220px; min-height: 0;
   display: flex; flex-direction: column;
-  background: rgba(0,0,0,0.88); padding: 16px 20px 16px 20px; border-top: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.88); padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.12);
   overflow: hidden;
 }
 .dialogue-box.hidden { display: none !important; }
@@ -128,8 +152,89 @@ body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; bac
 .cal-month-grid .cal-cell { padding: 8px; min-height: 36px; background: rgba(255,255,255,0.06); border-radius: 4px; cursor: pointer; }
 .cal-month-grid .cal-cell:hover { background: rgba(255,255,255,0.12); }
 .cal-month-grid .cal-cell.other-month { opacity: 0.5; }
+.cal-month-grid .cal-cell-today { outline: 2px solid #e94560; }
+.cal-dot { color: #e94560; }
+.cal-view-panel { margin-bottom: 12px; }
+.cal-week-label { margin-bottom: 8px; font-size: 0.9rem; }
+.cal-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.cal-week-day { padding: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+.cal-week-day:hover { background: rgba(255,255,255,0.12); }
+.cal-week-day .cal-week-num { font-weight: bold; display: block; }
+.cal-week-day ul { margin: 8px 0 0; padding-left: 16px; font-size: 0.8rem; }
+.cal-day-view-label { margin-bottom: 8px; font-weight: bold; }
+.cal-day-view section { margin-bottom: 12px; }
+.cal-day-view h5 { margin: 0 0 6px; font-size: 0.9rem; }
 .cal-day-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
 .cal-day-detail h4 { margin: 0 0 8px 0; font-size: 1rem; }
+.cal-day-detail h5 { margin: 10px 0 6px; font-size: 0.9rem; }
 .cal-day-detail ul { margin: 0; padding-left: 20px; }
+.cal-replay-list { font-size: 0.85rem; line-height: 1.5; }
 .close-calendar { margin-top: 12px; padding: 10px 18px; background: #444; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
 .close-calendar:hover { background: #555; }
+
+/* CG 回忆 & 全屏 CG */
+.gallery-panel {
+  position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,0.95); padding: 20px; overflow-y: auto; display: none;
+}
+.gallery-panel.open { display: block; }
+.gallery-panel h3 { margin: 0 0 16px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.gallery-cell { cursor: pointer; text-align: center; }
+.gallery-cell img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; }
+.gallery-caption { display: block; font-size: 0.85rem; margin-top: 4px; }
+.close-gallery { margin-top: 16px; padding: 10px 20px; background: #444; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+.cg-fullscreen {
+  position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.cg-fullscreen.visible { opacity: 1; pointer-events: auto; }
+.cg-fullscreen img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.cg-fullscreen span { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 0.95rem; color: #fff; }
+
+/* 游戏内 Toast 与 Modal（替代 alert/prompt/confirm） */
+.game-toast {
+  position: fixed; bottom: calc(var(--game-actions-height) + 12px); left: 50%; transform: translateX(-50%);
+  z-index: 100; display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: 90%;
+}
+.game-toast-item {
+  padding: 12px 20px; border-radius: 10px; background: rgba(0,0,0,0.88); color: #eee;
+  font-size: 0.95rem; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: toast-in 0.25s ease;
+}
+.game-toast-item.error { background: rgba(180,50,50,0.95); color: #fff; }
+.game-toast-item.success { background: rgba(40,120,80,0.95); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.game-modal {
+  position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.game-modal-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.6); cursor: pointer;
+}
+.game-modal-box {
+  position: relative; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 14px;
+  padding: 24px; min-width: 280px; max-width: 420px; max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.game-modal-title { margin: 0 0 12px 0; font-size: 1.1rem; }
+.game-modal-body { margin-bottom: 16px; font-size: 0.95rem; color: rgba(255,255,255,0.9); white-space: pre-wrap; }
+.game-modal-input-wrap { margin-bottom: 16px; }
+.game-modal-input {
+  width: 100%; padding: 10px 12px; background: #0f0f23; border: 1px solid #444; border-radius: 8px; color: #eee; font-size: 1rem;
+  box-sizing: border-box;
+}
+.game-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.game-modal-actions button {
+  padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.95rem;
+  background: rgba(255,255,255,0.12); color: #eee;
+}
+.game-modal-actions button:hover { background: rgba(255,255,255,0.2); }
+.game-modal-actions button.primary { background: #e94560; color: #fff; }
+.game-modal-actions button.primary:hover { background: #ff6b6b; }
+.game-modal-choices { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; margin-bottom: 16px; }
+.game-modal-choices .game-modal-choice {
+  padding: 12px 14px; text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; color: #eee; cursor: pointer;
+}
+.game-modal-choices .game-modal-choice:hover { background: rgba(255,255,255,0.12); }
+
+/* 立绘表情 & 聚焦 */
+.char.focus { transform: scale(1.05); filter: brightness(1.1); z-index: 2; transition: transform 0.2s, filter 0.2s; }
+.char:not(.focus) { filter: brightness(0.85); transition: transform 0.2s, filter 0.2s; }

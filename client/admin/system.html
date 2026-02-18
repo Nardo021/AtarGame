@@ -33,8 +33,22 @@
       <div class="admin-content">
         <div class="section">
           <h2>1000 玩家模拟</h2>
-          <p>数量 <input type="number" id="sim-n" value="1000"/> 策略 <select id="sim-strategy"><option value="random">随机</option><option value="grind">贪心学习</option></select> <button id="btn-simulate">运行</button></p>
-          <pre id="sim-result" style="padding:12px; border-radius:8px; overflow:auto; max-height:300px;"></pre>
+          <p>数量 <input type="number" id="sim-n" value="1000" min="1" max="10000"/>
+            策略 <select id="sim-strategy">
+              <option value="random">随机</option>
+              <option value="study">学习优先</option>
+              <option value="social">社交优先</option>
+              <option value="mixed">混合</option>
+            </select>
+            种子（可选）<input type="number" id="sim-seed" placeholder="留空用时间戳"/>
+            <button id="btn-simulate">运行</button>
+          </p>
+          <pre id="sim-result" style="padding:12px; border-radius:8px; overflow:auto; max-height:300px; background:rgba(0,0,0,0.2);"></pre>
+        </div>
+        <div class="section">
+          <h3>模拟历史</h3>
+          <button id="btn-load-runs">刷新记录</button>
+          <ul id="sim-runs-list" style="margin-top:12px; max-height:200px; overflow:auto;"></ul>
         </div>
         <div class="section">
           <h2>A/B 分组</h2>
@@ -48,7 +62,7 @@
     </main>
   </div>
   <script src="admin-common.js"></script>
-  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/admin/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
   <script src="admin-system.js"></script>
 </body>
 </html>

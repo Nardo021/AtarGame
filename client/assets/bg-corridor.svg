@@ -7,5 +7,5 @@
   <rect x="50" y="100" width="120" height="400" fill="#D3D3D3" stroke="#999"/>
   <rect x="630" y="100" width="120" height="400" fill="#D3D3D3" stroke="#999"/>
   <line x1="0" y1="350" x2="800" y2="350" stroke="#666" stroke-width="2"/>
-  <text x="400" y="200" text-anchor="middle" fill="#555" font-size="18">p </text>
+  <text x="400" y="200" text-anchor="middle" fill="#555" font-size="18" font-family="sans-serif">??</text>
 </svg>

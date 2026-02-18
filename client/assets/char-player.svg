@@ -2,5 +2,5 @@
   <ellipse cx="100" cy="80" rx="35" ry="40" fill="#FFDBAC"/>
   <path d="M 65 120 L 135 120 L 130 280 L 70 280 Z" fill="#4A90D9"/>
   <path d="M 70 280 L 65 380 L 90 380 L 95 280 M 130 280 L 135 380 L 110 380 L 105 280" fill="#2E5C3E"/>
-  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12">©¶</text>
+  <text x="100" y="420" text-anchor="middle" fill="#333" font-size="12" font-family="sans-serif">??</text>
 </svg>

@@ -37,8 +37,11 @@
       </div>
       <div id="scene-view" class="scene-view" style="display:none;">
         <div class="game-bg"></div>
+        <div id="char-left" class="char char-left"><img id="char-left-img" src="" alt=""/></div>
+        <div id="char-right" class="char char-right"><img id="char-right-img" src="" alt=""/></div>
       </div>
     </div>
+    <div id="transition-overlay" class="transition-overlay" aria-hidden="true"></div>
     <div id="afk-overlay" class="afk-overlay" style="display:none;">
       <p id="afk-text" data-i18n="afk_text">挂机中…</p>
     </div>
@@ -64,11 +67,12 @@
       <button id="btn-auto">Auto</button>
       <button id="btn-skip">Skip</button>
       <button id="btn-history" data-i18n="btn_history">历史</button>
+      <button id="btn-gallery" data-i18n="btn_gallery">回忆</button>
       <button id="btn-save" data-i18n="btn_save">存档</button>
       <button id="btn-load" data-i18n="btn_load">读档</button>
     </div>
 
-    <div id="dialogue-box" class="dialogue-box hidden">
+    <div id="dialogue-box" class="dialogue-box hidden" title="点击跳过当前句">
       <p id="dialogue-text" class="dialogue-text"></p>
       <div id="choices-container" class="choices-container"></div>
     </div>
@@ -79,6 +83,18 @@
       <button class="close-history" data-i18n="btn_close">关闭</button>
     </div>
 
+    <div id="game-toast" class="game-toast" aria-live="polite"></div>
+    <div id="game-modal" class="game-modal" aria-modal="true" aria-hidden="true" style="display:none;">
+      <div class="game-modal-backdrop"></div>
+      <div class="game-modal-box">
+        <h3 class="game-modal-title" id="game-modal-title"></h3>
+        <div class="game-modal-body" id="game-modal-body"></div>
+        <div class="game-modal-input-wrap" id="game-modal-input-wrap" style="display:none;">
+          <input type="text" id="game-modal-input" class="game-modal-input" placeholder=""/>
+        </div>
+        <div class="game-modal-actions" id="game-modal-actions"></div>
+      </div>
+    </div>
     <div id="calendar-panel" class="calendar-panel">
       <h3 data-i18n="calendar_title">日历</h3>
       <div class="calendar-toolbar">
@@ -87,12 +103,22 @@
         <button id="cal-next">下一月</button>
         <select id="cal-view"><option value="month">月</option><option value="week">周</option><option value="day">日</option></select>
       </div>
-      <div id="cal-month-grid" class="cal-month-grid"></div>
+      <div id="cal-month-panel" class="cal-view-panel">
+        <div id="cal-month-grid" class="cal-month-grid"></div>
+      </div>
+      <div id="cal-week-panel" class="cal-view-panel" style="display:none;">
+        <div id="cal-week-label" class="cal-week-label"></div>
+        <div id="cal-week-grid" class="cal-week-grid"></div>
+      </div>
+      <div id="cal-day-panel" class="cal-view-panel" style="display:none;">
+        <div id="cal-day-view-label" class="cal-day-view-label"></div>
+        <div id="cal-day-view" class="cal-day-view"></div>
+      </div>
       <div id="cal-day-detail" class="cal-day-detail" style="display:none;">
         <h4 id="cal-day-title"></h4>
+        <div id="cal-day-diary"></div>
         <div id="cal-day-actions"></div>
         <div id="cal-day-events"></div>
-        <div id="cal-day-diary"></div>
         <button id="cal-day-close" data-i18n="btn_close">关闭</button>
       </div>
       <button class="close-calendar" data-i18n="btn_close">关闭</button>
@@ -107,6 +133,8 @@
   <script src="api.js"></script>
   <script src="story.js"></script>
   <script src="game.js"></script>
+  <script src="vn_media.js"></script>
+  <script src="gallery.js"></script>
   <script src="calendar.js"></script>
   <script src="ui.js"></script>
   <script>

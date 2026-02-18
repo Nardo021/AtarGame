@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { getDb } = require('./db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'atar-dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'change-in-production';
 const JWT_OPTS = { expiresIn: '7d' };
 
 function hashPassword(password) {
@@ -15,6 +15,10 @@ function comparePassword(password, hash) {
 
 function createToken(payload) {
   return jwt.sign(payload, JWT_SECRET, JWT_OPTS);
+}
+
+function createTokenWithExpiry(payload, expiresIn) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn });
 }
 
 function verifyToken(token) {
@@ -43,7 +47,13 @@ function register(username, password) {
   const hash = hashPassword(password);
   try {
     const r = db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run(username, hash, 'user');
-    return { id: r.lastInsertRowid, username, role: 'user' };
+    const uid = r.lastInsertRowid;
+    const count = db.prepare('SELECT COUNT(*) AS c FROM users WHERE role = ?').get('user');
+    const groupName = count && count.c % 2 === 0 ? 'A' : 'B';
+    try {
+      db.prepare('INSERT INTO ab_groups (user_id, group_name) VALUES (?, ?)').run(uid, groupName);
+    } catch (_) {}
+    return { id: uid, username, role: 'user' };
   } catch (e) {
     if ((e.code === 'SQLITE_CONSTRAINT_UNIQUE') || (e.message && e.message.includes('UNIQUE'))) return null;
     throw e;
@@ -68,6 +78,7 @@ module.exports = {
   hashPassword,
   comparePassword,
   createToken,
+  createTokenWithExpiry,
   verifyToken,
   ensureAdmin,
   register,

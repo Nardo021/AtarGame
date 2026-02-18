@@ -1,14 +1,4 @@
--- 邀请码（注册必须）
-CREATE TABLE IF NOT EXISTS invite_codes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  code TEXT UNIQUE NOT NULL,
-  max_uses INTEGER NOT NULL DEFAULT 1,
-  used_count INTEGER NOT NULL DEFAULT 0,
-  note TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
--- 用户
+-- users
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
@@ -18,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- 存档 (user_id + slot 唯一)
+-- saves
 CREATE TABLE IF NOT EXISTS saves (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id),
@@ -29,7 +19,7 @@ CREATE TABLE IF NOT EXISTS saves (
   UNIQUE(user_id, slot)
 );
 
--- 行动日志
+-- action_logs
 CREATE TABLE IF NOT EXISTS action_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -45,11 +35,9 @@ CREATE TABLE IF NOT EXISTS action_logs (
   state_before_json TEXT,
   state_after_json TEXT
 );
-
 CREATE INDEX IF NOT EXISTS idx_action_logs_user_ts ON action_logs(user_id, ts);
-CREATE INDEX IF NOT EXISTS idx_action_logs_ts ON action_logs(ts);
 
--- 事件日志
+-- event_logs
 CREATE TABLE IF NOT EXISTS event_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER,
@@ -61,52 +49,9 @@ CREATE TABLE IF NOT EXISTS event_logs (
   event_type TEXT NOT NULL,
   detail_json TEXT
 );
-
 CREATE INDEX IF NOT EXISTS idx_event_logs_user_ts ON event_logs(user_id, ts);
-CREATE INDEX IF NOT EXISTS idx_event_logs_ts ON event_logs(ts);
 
--- 全局广播消息
-CREATE TABLE IF NOT EXISTS messages (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  expires_at TEXT
-);
-
--- 剧情热更新存储
-CREATE TABLE IF NOT EXISTS story_store (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  active_version_id INTEGER,
-  story_json TEXT,
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
--- 剧情版本
-CREATE TABLE IF NOT EXISTS story_versions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  ts TEXT NOT NULL DEFAULT (datetime('now')),
-  admin_user_id INTEGER,
-  story_json TEXT NOT NULL,
-  note TEXT
-);
-
--- A/B 分组
-CREATE TABLE IF NOT EXISTS ab_groups (
-  user_id INTEGER NOT NULL PRIMARY KEY,
-  group_name TEXT NOT NULL
-);
-
--- 游戏配置（可带 ab_group）
-CREATE TABLE IF NOT EXISTS game_configs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  key TEXT UNIQUE NOT NULL,
-  value_json TEXT NOT NULL,
-  updated_at TEXT DEFAULT (datetime('now')),
-  ab_group TEXT
-);
-
--- 审计日志
+-- audit_logs
 CREATE TABLE IF NOT EXISTS audit_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   admin_user_id INTEGER NOT NULL,
@@ -116,7 +61,48 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   detail_json TEXT
 );
 
--- 留言板
+-- messages
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT
+);
+
+-- ab_groups
+CREATE TABLE IF NOT EXISTS ab_groups (
+  user_id INTEGER NOT NULL PRIMARY KEY,
+  group_name TEXT NOT NULL
+);
+
+-- game_configs
+CREATE TABLE IF NOT EXISTS game_configs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  key TEXT UNIQUE NOT NULL,
+  value_json TEXT NOT NULL,
+  updated_at TEXT DEFAULT (datetime('now')),
+  ab_group TEXT
+);
+
+-- story_store
+CREATE TABLE IF NOT EXISTS story_store (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  active_version_id INTEGER,
+  story_json TEXT,
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+-- story_versions
+CREATE TABLE IF NOT EXISTS story_versions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts TEXT NOT NULL DEFAULT (datetime('now')),
+  admin_user_id INTEGER,
+  story_json TEXT NOT NULL,
+  note TEXT
+);
+
+-- board_posts
 CREATE TABLE IF NOT EXISTS board_posts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -124,31 +110,19 @@ CREATE TABLE IF NOT EXISTS board_posts (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   is_deleted INTEGER NOT NULL DEFAULT 0
 );
-
 CREATE INDEX IF NOT EXISTS idx_board_posts_created ON board_posts(created_at);
 
--- 存档备份（回档用）
-CREATE TABLE IF NOT EXISTS save_backups (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  slot INTEGER NOT NULL,
-  state_json TEXT NOT NULL,
-  backup_ts TEXT NOT NULL DEFAULT (datetime('now')),
-  reason TEXT
-);
-
--- 日记（每日总结，由前端在跨天时写入或按需生成）
+-- diary_entries
 CREATE TABLE IF NOT EXISTS diary_entries (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id),
   date_iso TEXT NOT NULL,
   content TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  UNIQUE(user_id, date_iso)
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_diary_user_date ON diary_entries(user_id, date_iso);
 
--- 日历事件（全局 user_id=null 或个人 user_id 非空）
+-- calendar_events
 CREATE TABLE IF NOT EXISTS calendar_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER,
@@ -159,4 +133,28 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   created_at TEXT DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_calendar_date ON calendar_events(date_iso);
-CREATE INDEX IF NOT EXISTS idx_calendar_user ON calendar_events(user_id);
+
+-- user_freeze (冻结/解冻，单独表避免改 users 结构)
+CREATE TABLE IF NOT EXISTS user_freeze (
+  user_id INTEGER NOT NULL PRIMARY KEY REFERENCES users(id),
+  frozen INTEGER NOT NULL DEFAULT 1,
+  reason TEXT,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- simulation_runs (模拟器结果)
+CREATE TABLE IF NOT EXISTS simulation_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts TEXT NOT NULL DEFAULT (datetime('now')),
+  params_json TEXT NOT NULL,
+  result_json TEXT NOT NULL
+);
+
+-- game_configs_ab: 按 A/B 组区分的配置（同 key 不同 ab_group）
+CREATE TABLE IF NOT EXISTS game_configs_ab (
+  key TEXT NOT NULL,
+  ab_group TEXT NOT NULL,
+  value_json TEXT NOT NULL,
+  updated_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(key, ab_group)
+);
