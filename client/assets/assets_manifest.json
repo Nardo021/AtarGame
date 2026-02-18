@@ -1,0 +1,18 @@
+{
+  "backgrounds": [
+    "assets/bg-classroom.svg",
+    "assets/bg-corridor.svg",
+    "assets/bg-field.svg",
+    "assets/bg-clubroom.svg",
+    "assets/bg-bedroom.svg",
+    "assets/bg-internet_cafe.svg",
+    "assets/bg-map.svg"
+  ],
+  "characters": [
+    "assets/char-player.svg",
+    "assets/char-teacher.svg",
+    "assets/char-classmate.svg",
+    "assets/char-club_senior.svg",
+    "assets/char-cafe_staff.svg"
+  ]
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>首页 - ATAR 管理后台</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <script src="../i18n.js"></script>
+  <script src="admin-auth.js"></script>
+</head>
+<body>
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
+      <nav class="admin-sidebar-nav">
+        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
+        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
+        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
+        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
+        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
+        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
+        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
+        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
+      </nav>
+      <div class="admin-sidebar-bottom">
+        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
+        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
+        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <span class="admin-header-title">首页</span>
+      </header>
+      <div class="admin-content">
+        <h1>概览</h1>
+        <div class="section">
+          <h2>实时在线</h2>
+          <p><button id="btn-online">刷新</button> 最近 <input type="number" id="online-minutes" value="15" style="width:60px"/> 分钟有行动的用户</p>
+          <table><thead><tr><th>用户ID</th><th>用户名</th><th>最后活动</th></tr></thead><tbody id="online-body"></tbody></table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="admin-common.js"></script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="admin.js"></script>
+  <script>
+    (function(){ var api=function(p,method,body){ var o={method:method||'GET',credentials:'include',headers:{}}; if(body!==undefined){o.headers['Content-Type']='application/json';o.body=typeof body==='string'?body:JSON.stringify(body);} return fetch(p,o).then(function(r){if(!r.ok)return r.json().then(function(j){throw new Error(j.error||r.statusText);}); return r.json();}); };
+    document.getElementById('btn-online').onclick=function(){ var m=document.getElementById('online-minutes').value||15; api('/api/admin/online?minutes='+m).then(function(r){ var t=document.getElementById('online-body'); t.innerHTML=(r.online||[]).map(function(u){return '<tr><td>'+u.user_id+'</td><td>'+(u.username||'')+'</td><td>'+(u.last_ts||'')+'</td></tr>';}).join(''); }).catch(function(e){alert(e.message);}); };
+    })();
+  </script>
+</body>
+</html>

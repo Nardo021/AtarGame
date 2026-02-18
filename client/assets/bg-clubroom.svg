@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="cr_wall" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#D2691E"/><stop offset="100%" style="stop-color:#8B4513"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#cr_wall)"/>
+  <rect x="80" y="80" width="640" height="440" fill="#DEB887" stroke="#8B4513" stroke-width="2"/>
+  <rect x="120" y="120" width="200" height="120" fill="#2F4F4F"/>
+  <text x="220" y="185" text-anchor="middle" fill="#FFF" font-size="14">f∂</text>
+  <rect x="480" y="140" width="160" height="100" fill="#F5DEB3" stroke="#8B4513"/>
+  <text x="560" y="195" text-anchor="middle" fill="#333" font-size="12">>‚Ë</text>
+</svg>

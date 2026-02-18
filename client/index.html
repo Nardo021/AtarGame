@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ATAR 养成</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>.lang-switch{position:fixed;top:12px;right:12px;z-index:9998;background:rgba(0,0,0,0.6);padding:6px 10px;border-radius:8px;font-size:0.85rem;}.lang-switch a{color:#78c4ff;margin:0 4px;cursor:pointer;}.lang-switch a.active{color:#fff;}</style>
+</head>
+<body data-i18n-title="">
+  <div class="lang-switch"><a id="lang-zh" href="#">中文</a><span>|</span><a id="lang-en" href="#">EN</a></div>
+  <div id="broadcast-bar" class="broadcast-bar" style="display:none;"></div>
+
+  <div id="login-screen" class="screen">
+    <div class="login-box">
+      <h1 data-i18n="title">ATAR 养成</h1>
+      <input id="login-username" type="text" data-i18n-placeholder="login_username" placeholder="用户名" autocomplete="username"/>
+      <input id="login-password" type="password" data-i18n-placeholder="login_password" placeholder="密码" autocomplete="current-password"/>
+      <input id="login-invite-code" type="text" data-i18n-placeholder="login_invite" placeholder="邀请码（仅注册必填）"/>
+      <div class="login-remember">
+        <input type="checkbox" id="login-remember-me"/>
+        <label for="login-remember-me" data-i18n="remember_me">记住我</label>
+      </div>
+      <div class="login-actions">
+        <button id="btn-login" data-i18n="btn_login">登录</button>
+        <button id="btn-register" data-i18n="btn_register">注册</button>
+      </div>
+      <p class="login-links"><a href="leaderboard.html" data-i18n="link_leaderboard">排行榜</a> | <a href="board.html" data-i18n="link_board">留言板</a></p>
+    </div>
+  </div>
+
+  <div id="game-screen" class="screen" style="display:none;">
+    <div id="game-view-wrap" class="game-view-wrap">
+      <div id="map-view" class="map-view" style="display:none;">
+        <div class="map-bg"></div>
+        <div id="map-hotspots" class="map-hotspots"></div>
+      </div>
+      <div id="scene-view" class="scene-view" style="display:none;">
+        <div class="game-bg"></div>
+      </div>
+    </div>
+    <div id="afk-overlay" class="afk-overlay" style="display:none;">
+      <p id="afk-text" data-i18n="afk_text">挂机中…</p>
+    </div>
+
+    <div id="hud" class="hud">
+      <span><span data-i18n="hud_atar">ATAR</span>:<b id="hud-atar">50</b></span>
+      <span><span data-i18n="hud_mood">心情</span>:<b id="hud-mood">70</b></span>
+      <span><span data-i18n="hud_health">健康</span>:<b id="hud-health">80</b></span>
+      <span><span data-i18n="hud_stress">压力</span>:<b id="hud-stress">20</b></span>
+      <span><span data-i18n="hud_fatigue">疲劳</span>:<b id="hud-fatigue">0</b></span>
+      <span><span data-i18n="hud_location">地点</span>:<b id="hud-location">教室</b></span>
+      <span><span data-i18n="hud_time">时间</span>:<b id="hud-time">2026-01-01 MorningClass</b></span>
+    </div>
+
+    <div class="game-actions">
+      <button id="btn-back-map" data-i18n="btn_back_map">返回地图</button>
+      <button id="btn-map" data-i18n="btn_map">地图</button>
+      <button id="btn-calendar" data-i18n="btn_calendar">日历</button>
+      <button id="btn-afk" data-i18n="btn_afk">上课（挂机）</button>
+      <button id="btn-travel" data-i18n="btn_travel">移动</button>
+      <button id="btn-sleep" data-i18n="btn_sleep">睡觉</button>
+      <button id="btn-pause" data-i18n="btn_pause">暂停</button>
+      <button id="btn-auto">Auto</button>
+      <button id="btn-skip">Skip</button>
+      <button id="btn-history" data-i18n="btn_history">历史</button>
+      <button id="btn-save" data-i18n="btn_save">存档</button>
+      <button id="btn-load" data-i18n="btn_load">读档</button>
+    </div>
+
+    <div id="dialogue-box" class="dialogue-box hidden">
+      <p id="dialogue-text" class="dialogue-text"></p>
+      <div id="choices-container" class="choices-container"></div>
+    </div>
+
+    <div id="history-panel" class="history-panel">
+      <h3 data-i18n="history_title">对话历史</h3>
+      <div class="history-list"></div>
+      <button class="close-history" data-i18n="btn_close">关闭</button>
+    </div>
+
+    <div id="calendar-panel" class="calendar-panel">
+      <h3 data-i18n="calendar_title">日历</h3>
+      <div class="calendar-toolbar">
+        <button id="cal-prev">上一月</button>
+        <span id="cal-month-label"></span>
+        <button id="cal-next">下一月</button>
+        <select id="cal-view"><option value="month">月</option><option value="week">周</option><option value="day">日</option></select>
+      </div>
+      <div id="cal-month-grid" class="cal-month-grid"></div>
+      <div id="cal-day-detail" class="cal-day-detail" style="display:none;">
+        <h4 id="cal-day-title"></h4>
+        <div id="cal-day-actions"></div>
+        <div id="cal-day-events"></div>
+        <div id="cal-day-diary"></div>
+        <button id="cal-day-close" data-i18n="btn_close">关闭</button>
+      </div>
+      <button class="close-calendar" data-i18n="btn_close">关闭</button>
+    </div>
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="rules.js"></script>
+  <script src="scheduler.js"></script>
+  <script src="map.js"></script>
+  <script src="history.js"></script>
+  <script src="api.js"></script>
+  <script src="story.js"></script>
+  <script src="game.js"></script>
+  <script src="calendar.js"></script>
+  <script src="ui.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      I18n.apply();
+      document.getElementById('lang-zh').onclick = function (e) { e.preventDefault(); if (I18n.getLang() !== 'zh') { I18n.setLang('zh'); I18n.apply(); if (window.UI && UI.onLangChange) UI.onLangChange(); } document.getElementById('lang-zh').classList.add('active'); document.getElementById('lang-en').classList.remove('active'); };
+      document.getElementById('lang-en').onclick = function (e) { e.preventDefault(); if (I18n.getLang() !== 'en') { I18n.setLang('en'); I18n.apply(); if (window.UI && UI.onLangChange) UI.onLangChange(); } document.getElementById('lang-en').classList.add('active'); document.getElementById('lang-zh').classList.remove('active'); };
+      if (I18n.getLang() === 'en') { document.getElementById('lang-en').classList.add('active'); } else { document.getElementById('lang-zh').classList.add('active'); }
+      try {
+        var rem = document.getElementById('login-remember-me');
+        if (rem && localStorage.getItem('rememberMe') === '1') rem.checked = true;
+      } catch (e) {}
+      if (document.getElementById('history-panel')) {
+        document.querySelector('.close-history').onclick = function () {
+          document.getElementById('history-panel').classList.remove('open');
+        };
+      }
+      UI.init();
+    });
+  </script>
+</body>
+</html>

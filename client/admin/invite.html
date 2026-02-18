@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>邀请码 - ATAR 管理后台</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <script src="../i18n.js"></script>
+  <script src="admin-auth.js"></script>
+</head>
+<body>
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
+      <nav class="admin-sidebar-nav">
+        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
+        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
+        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
+        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
+        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
+        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
+        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
+        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
+      </nav>
+      <div class="admin-sidebar-bottom">
+        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
+        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
+        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header"><span class="admin-header-title">邀请码管理</span></header>
+      <div class="admin-content">
+        <div class="section">
+          <p>新增：邀请码 <input id="invite-code" placeholder="如 ATAR2026"/> 最大使用次数 <input type="number" id="invite-max-uses" value="10" min="0" style="width:70px"/>（0=不限） 备注 <input id="invite-note" placeholder="可选"/> <button id="btn-invite-create">创建</button></p>
+          <p><button id="btn-invite-refresh" class="secondary">刷新列表</button></p>
+          <table>
+            <thead><tr><th>ID</th><th>邀请码</th><th>最大次数</th><th>已使用</th><th>备注</th><th>创建时间</th><th>操作</th></tr></thead>
+            <tbody id="invite-codes-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="admin-common.js"></script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="admin-invite.js"></script>
+</body>
+</html>

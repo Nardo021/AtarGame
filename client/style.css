@@ -1,0 +1,135 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+
+.broadcast-bar {
+  position: fixed; top: 0; left: 0; right: 0; background: #e94560; color: #fff; padding: 8px 16px; z-index: 9999; text-align: center;
+}
+
+.screen { min-height: 100vh; position: relative; }
+
+/* 登录：严格居中 */
+#login-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, #0f0f23 0%, #16213e 50%, #1a1a2e 100%);
+  padding: 20px;
+}
+.login-box {
+  background: rgba(255,255,255,0.06); padding: 2.25rem; border-radius: 16px; width: 340px; max-width: 100%;
+  border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.login-box h1 { margin: 0 0 1.5rem; text-align: center; font-size: 1.6rem; font-weight: 600; letter-spacing: 0.02em; }
+.login-box input[type="text"],
+.login-box input[type="password"] {
+  display: block; width: 100%; margin-bottom: 12px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(0,0,0,0.25); color: #eee; font-size: 1rem;
+}
+.login-box input::placeholder { color: rgba(255,255,255,0.4); }
+.login-remember { display: flex; align-items: center; gap: 8px; margin: 12px 0 0 0; }
+.login-remember input[type="checkbox"] { width: auto; margin: 0; accent-color: #e94560; }
+.login-remember label { font-size: 0.9rem; color: rgba(255,255,255,0.8); cursor: pointer; user-select: none; }
+.login-actions { display: flex; gap: 10px; margin-top: 1.25rem; }
+.login-actions button { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #e94560; color: #fff; cursor: pointer; font-size: 1rem; }
+.login-actions button:hover { background: #ff6b6b; }
+.login-links { margin-top: 1.25rem; text-align: center; font-size: 0.9rem; }
+.login-links a { color: #78c4ff; text-decoration: none; }
+.login-links a:hover { text-decoration: underline; }
+
+/* 游戏：MAP/SCENE 容器 */
+.game-view-wrap {
+  position: fixed; inset: 0; z-index: 0;
+}
+.map-view, .scene-view {
+  position: absolute; inset: 0;
+}
+.map-bg {
+  position: absolute; inset: 0; background: url(assets/bg-map.svg) center/cover;
+}
+.map-hotspots {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.map-hotspot {
+  position: absolute; pointer-events: auto; cursor: pointer;
+  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px; transition: background 0.2s;
+}
+.map-hotspot:hover { background: rgba(255,255,255,0.2); }
+.game-bg {
+  position: absolute; inset: 0; background: url(assets/bg-classroom.svg) center/cover;
+}
+.transition-overlay {
+  position: fixed; inset: 0; z-index: 9997; pointer-events: none;
+  opacity: 0; transition: opacity 0.28s ease;
+}
+.transition-overlay.transition-visible { opacity: 1; pointer-events: auto; }
+.transition-overlay.transition-fade { background: #000; }
+.transition-overlay.transition-slide { background: #000; }
+.transition-overlay.transition-blur { background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
+.afk-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 5; display: flex; align-items: center; justify-content: center;
+}
+.afk-overlay p { font-size: 1.5rem; }
+
+.hud {
+  position: fixed; top: 12px; left: 12px; z-index: 10; background: rgba(0,0,0,0.65); padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; display: flex; gap: 14px; flex-wrap: wrap; backdrop-filter: blur(4px);
+}
+.hud b { margin-left: 4px; color: #78c4ff; }
+
+/* 操作栏固定在底部 */
+.game-actions {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 12;
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center;
+  padding: 10px 12px; min-height: 52px;
+  background: rgba(0,0,0,0.75); border-top: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(6px);
+}
+.game-actions button {
+  padding: 8px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.08); color: #eee; cursor: pointer; font-size: 0.9rem;
+}
+.game-actions button:hover { background: rgba(255,255,255,0.15); }
+.game-actions button.active { background: #e94560; border-color: #e94560; }
+
+/* 对话框在操作栏正上方，不重叠 */
+.dialogue-box {
+  position: fixed; left: 0; right: 0; bottom: 52px; z-index: 11;
+  max-height: 220px; min-height: 0;
+  display: flex; flex-direction: column;
+  background: rgba(0,0,0,0.88); padding: 16px 20px 16px 20px; border-top: 1px solid rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+.dialogue-box.hidden { display: none !important; }
+.dialogue-text {
+  font-size: 1.05rem; line-height: 1.65; flex: 0 1 auto; overflow-y: auto; cursor: pointer; margin: 0 0 12px 0; padding: 0;
+}
+.choices-container { margin-top: 0; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+.choice-btn {
+  padding: 10px 14px; text-align: left; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.06); color: #eee; cursor: pointer; font-size: 0.95rem;
+}
+.choice-btn:hover { background: rgba(255,255,255,0.12); }
+
+.history-panel {
+  position: fixed; top: 0; right: -400px; width: 380px; height: 100vh; background: rgba(0,0,0,0.95); z-index: 20; padding: 20px; transition: right 0.3s; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+}
+.history-panel.open { right: 0; }
+.history-panel h3 { margin: 0 0 12px 0; font-size: 1.1rem; }
+.history-list { margin: 12px 0; }
+.history-item { padding: 10px 0; border-bottom: 1px solid #333; font-size: 0.9rem; line-height: 1.4; }
+.history-item .date { color: #888; margin-right: 8px; font-size: 0.8rem; }
+.history-item .node { color: #78c4ff; }
+.close-history { margin-top: 12px; padding: 10px 18px; background: #444; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+.close-history:hover { background: #555; }
+
+.calendar-panel {
+  position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: rgba(0,0,0,0.95); z-index: 20; padding: 16px; transition: right 0.3s; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+}
+.calendar-panel.open { right: 0; }
+.calendar-panel h3 { margin: 0 0 12px 0; font-size: 1.1rem; }
+.calendar-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.calendar-toolbar button, .calendar-toolbar select { padding: 6px 10px; font-size: 0.85rem; }
+.cal-month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; font-size: 0.8rem; }
+.cal-month-grid .cal-cell { padding: 8px; min-height: 36px; background: rgba(255,255,255,0.06); border-radius: 4px; cursor: pointer; }
+.cal-month-grid .cal-cell:hover { background: rgba(255,255,255,0.12); }
+.cal-month-grid .cal-cell.other-month { opacity: 0.5; }
+.cal-day-detail { margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
+.cal-day-detail h4 { margin: 0 0 8px 0; font-size: 1rem; }
+.cal-day-detail ul { margin: 0; padding-left: 20px; }
+.close-calendar { margin-top: 12px; padding: 10px 18px; background: #444; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+.close-calendar:hover { background: #555; }

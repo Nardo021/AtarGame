@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>用户管理 - ATAR 管理后台</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <script src="../i18n.js"></script>
+  <script src="admin-auth.js"></script>
+  <style>
+    .user-detail-box { margin-bottom: 20px; }
+    .user-detail-box h3 { margin: 0 0 12px 0; }
+    .user-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .user-detail-card { background: var(--adm-input-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--adm-border); }
+    .user-detail-card label { display: block; font-size: 0.8rem; color: var(--adm-text-muted); margin-bottom: 4px; }
+    .user-detail-card span { font-size: 1rem; }
+    table.users-table { margin-top: 12px; }
+    .btn-small { padding: 4px 10px; font-size: 0.85rem; margin-right: 4px; }
+    .detail-actions { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
+      <nav class="admin-sidebar-nav">
+        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
+        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
+        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
+        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
+        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
+        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
+        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
+        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
+      </nav>
+      <div class="admin-sidebar-bottom">
+        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
+        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
+        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header"><span class="admin-header-title">用户管理</span></header>
+      <div class="admin-content">
+  <h1>用户管理</h1>
+
+  <div class="section">
+    <p><button id="btn-refresh-users">刷新列表</button></p>
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>用户名</th>
+          <th>角色</th>
+          <th>禁用</th>
+          <th>注册时间</th>
+          <th>存档数</th>
+          <th>行动数</th>
+          <th>最后存档</th>
+          <th>最后活动</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="users-tbody"></tbody>
+    </table>
+  </div>
+
+  <div id="user-detail-section" class="section user-detail-box" style="display:none;">
+    <h3>用户详情 <span id="detail-username"></span> <button class="btn-small secondary" id="btn-close-detail">关闭</button></h3>
+    <div class="user-detail-grid" id="detail-basic"></div>
+    <div class="detail-actions">
+      <button class="secondary btn-small" id="btn-freeze-detail">冻结</button>
+      <button class="secondary btn-small" id="btn-unfreeze-detail">解冻</button>
+    </div>
+    <h4 style="margin: 16px 0 8px 0;">最新游戏状态</h4>
+    <pre id="detail-state" style="background: #1a1a2e; padding: 12px; border-radius: 8px; overflow: auto; font-size: 0.9rem;"></pre>
+    <h4 style="margin: 16px 0 8px 0;">存档列表</h4>
+    <div id="detail-saves"></div>
+    <h4 style="margin: 16px 0 8px 0;">最近行动（最多 50 条）</h4>
+    <div id="detail-actions" style="max-height: 300px; overflow-y: auto;"></div>
+  </div>
+      </div>
+    </main>
+  </div>
+  <script src="admin-common.js"></script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="users.js"></script>
+</body>
+</html>

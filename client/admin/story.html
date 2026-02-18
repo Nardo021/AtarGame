@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>剧情管理 - ATAR 管理后台</title>
+  <link rel="stylesheet" href="admin.css"/>
+  <script src="../i18n.js"></script>
+  <script src="admin-auth.js"></script>
+</head>
+<body>
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-brand"><span data-i18n="admin_title">ATAR 管理</span></div>
+      <nav class="admin-sidebar-nav">
+        <a href="index.html"><span>📊</span><span data-i18n="admin_nav_home">首页</span></a>
+        <a href="analytics.html"><span>📈</span><span data-i18n="admin_nav_analytics">运营分析</span></a>
+        <a href="users.html"><span>👥</span><span data-i18n="admin_nav_users">用户管理</span></a>
+        <a href="invite.html"><span>🎫</span><span data-i18n="admin_nav_invite">邀请码</span></a>
+        <a href="story.html"><span>📜</span><span data-i18n="admin_nav_story">剧情管理</span></a>
+        <a href="broadcast.html"><span>📢</span><span data-i18n="admin_nav_broadcast">广播</span></a>
+        <a href="operate.html"><span>🎮</span><span data-i18n="admin_nav_operate">玩家操作</span></a>
+        <a href="system.html"><span>⚙️</span><span data-i18n="admin_nav_system">系统</span></a>
+      </nav>
+      <div class="admin-sidebar-bottom">
+        <div style="margin-bottom:8px;"><a href="#" id="admin-lang-zh" style="color:var(--adm-sidebar-text);font-size:0.9rem;">中文</a> <span style="color:var(--adm-sidebar-text);">|</span> <a href="#" id="admin-lang-en" style="color:var(--adm-sidebar-text);font-size:0.9rem;">EN</a></div>
+        <button type="button" class="admin-theme-toggle" id="admin-theme-btn">🌙 深色模式</button>
+        <a href="#" id="admin-logout" data-i18n="admin_nav_logout" style="display:block; margin-top:10px; padding:10px; text-align:center; color:var(--adm-sidebar-text);">退出</a>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header"><span class="admin-header-title">剧情热更新</span></header>
+      <div class="admin-content">
+        <div class="section">
+          <p><button id="btn-load-story">加载当前剧情</button> <button id="btn-save-story">保存剧情</button></p>
+          <textarea id="story-json" style="width:100%; min-height:200px; font-family:monospace; font-size:12px;" placeholder="JSON 剧情…"></textarea>
+          <p><a href="#" id="link-versions">版本列表</a></p>
+          <div id="versions-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="admin-common.js"></script>
+  <script>document.getElementById('admin-logout').onclick=function(e){e.preventDefault();fetch('/api/auth/logout',{method:'POST',credentials:'include'}).then(function(){window.location.href='login.html';});};</script>
+  <script src="admin-story.js"></script>
+</body>
+</html>

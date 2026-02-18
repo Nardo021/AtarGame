@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#1a1a2e"/>
+  <rect x="50" y="150" width="700" height="400" fill="#16213e"/>
+  <rect x="80" y="200" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="220" y="200" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="360" y="200" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="500" y="200" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="640" y="200" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="80" y="320" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="220" y="320" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <rect x="360" y="320" width="120" height="80" fill="#0f3460" stroke="#e94560"/>
+  <text x="400" y="120" text-anchor="middle" fill="#e94560" font-size="20">Q'</text>
+</svg>

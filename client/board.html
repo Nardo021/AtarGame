@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>留言板 - ATAR</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .board-page { padding: 24px; max-width: 700px; margin: 0 auto; }
+    .board-page h1 { margin-bottom: 16px; }
+    .board-form { margin-bottom: 24px; }
+    .board-form textarea { width: 100%; min-height: 80px; padding: 12px; background: #0f0f23; color: #eee; border: 1px solid #444; border-radius: 6px; }
+    .board-form button { margin-top: 8px; padding: 10px 20px; background: #e94560; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+    .board-list .item { padding: 12px 0; border-bottom: 1px solid #333; }
+    .board-list .meta { color: #888; font-size: 0.85rem; margin-bottom: 4px; }
+    .board-list .content { white-space: pre-wrap; word-break: break-word; }
+    .back { display: inline-block; margin-bottom: 16px; color: #78c4ff; }
+    .lang-switch { position: absolute; top: 12px; right: 12px; font-size: 0.85rem; }
+    .lang-switch a { color: #78c4ff; margin: 0 4px; }
+    .lang-switch a.active { color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="lang-switch"><a id="lang-zh" href="#">中文</a><span>|</span><a id="lang-en" href="#">EN</a></div>
+  <div class="board-page">
+    <a href="index.html" class="back" data-i18n="back_game">← 返回游戏</a>
+    <h1 data-i18n="board_title">留言板</h1>
+    <div class="board-form">
+      <textarea id="post-content" data-i18n-placeholder="board_placeholder" placeholder="说点什么…（需登录）"></textarea>
+      <button id="btn-post" data-i18n="board_post">发布</button>
+    </div>
+    <div class="board-list" id="board-list"></div>
+  </div>
+  <script src="i18n.js"></script>
+  <script src="api.js"></script>
+  <script src="board.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      I18n.apply();
+      document.getElementById('lang-zh').onclick = function (e) { e.preventDefault(); I18n.setLang('zh'); I18n.apply(); document.getElementById('lang-zh').classList.add('active'); document.getElementById('lang-en').classList.remove('active'); };
+      document.getElementById('lang-en').onclick = function (e) { e.preventDefault(); I18n.setLang('en'); I18n.apply(); document.getElementById('lang-en').classList.add('active'); document.getElementById('lang-zh').classList.remove('active'); };
+      if (I18n.getLang() === 'en') document.getElementById('lang-en').classList.add('active'); else document.getElementById('lang-zh').classList.add('active');
+    });
+  </script>
+</body>
+</html>
