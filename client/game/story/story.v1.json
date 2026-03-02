@@ -1,0 +1,509 @@
+{
+  "meta": {
+    "id": "only-math.v1",
+    "title": "Only Math",
+    "startDateISO": "2026-01-01",
+    "endDateISO": "2026-12-31",
+    "slotsWeekday": ["CLASS_AM", "BREAK", "CLASS_PM", "AFTER_SCHOOL", "EVENING", "NIGHT"],
+    "slotsWeekend": ["MORNING", "AFTERNOON", "EVENING", "NIGHT"],
+    "scenes": ["CLASSROOM", "HOME"],
+    "characters": ["MR_TA"]
+  },
+
+  "flags": {
+    "met_don_ta": false,
+    "first_mock_done": false,
+    "second_mock_done": false,
+    "confronted_ta": false,
+    "rain_walk_once": false,
+    "depression_intro_seen": false,
+    "sick_intro_seen": false,
+    "truth_route_unlocked": false
+  },
+
+  "chapters": [
+    {
+      "id": "CH1",
+      "name": "开学与誓言",
+      "range": { "from": "2026-01-01", "to": "2026-02-29" },
+      "milestones": ["MS_OPENING", "MS_FIRST_PRAISE_OR_SHAME"]
+    },
+    {
+      "id": "CH2",
+      "name": "压力开始变真",
+      "range": { "from": "2026-03-01", "to": "2026-05-31" },
+      "milestones": ["MS_MOCK_1", "MS_HABIT_CHECK"]
+    },
+    {
+      "id": "CH3",
+      "name": "崩溃区间",
+      "range": { "from": "2026-06-01", "to": "2026-08-31" },
+      "milestones": ["MS_RAIN_DAY", "MS_DEPRESSION_GATE", "MS_SICK_GATE"]
+    },
+    {
+      "id": "CH4",
+      "name": "对抗与分岔",
+      "range": { "from": "2026-09-01", "to": "2026-10-31" },
+      "milestones": ["MS_CONFRONT", "MS_MOCK_2", "MS_PERSONALITY_LOCK"]
+    },
+    {
+      "id": "CH5",
+      "name": "考试与结算",
+      "range": { "from": "2026-11-01", "to": "2026-12-31" },
+      "milestones": ["MS_FINAL_EXAM", "MS_GRADUATION"]
+    }
+  ],
+
+  "milestones": [
+    {
+      "id": "MS_OPENING",
+      "when": { "type": "date", "dateISO": "2026-01-01", "slotId": "CLASS_AM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_day" },
+        { "type": "char", "id": "MR_TA", "pose": "neutral", "nameplate": "Mr Ta" },
+        { "type": "say", "who": "MR_TA", "text": "数学不是一门课。数学是你未来唯一的出口。" },
+        {
+          "type": "choice",
+          "id": "goal_pick",
+          "text": "今年目标？",
+          "options": [
+            { "label": "冲 99.95", "effects": [{ "op": "add", "path": "stats.stress", "value": 8 }, { "op": "mul", "path": "mods.studyMultiplier", "value": 1.05 }, { "op": "set", "path": "mods.moodRecoveryRate", "value": 0.8 }] },
+            { "label": "稳定高分", "effects": [{ "op": "mul", "path": "mods.studyMultiplier", "value": 1.0 }, { "op": "set", "path": "mods.moodRecoveryRate", "value": 1.0 }] },
+            { "label": "随缘但活着", "effects": [{ "op": "add", "path": "stats.mood", "value": 6 }, { "op": "mul", "path": "mods.studyMultiplier", "value": 0.95 }, { "op": "set", "path": "mods.moodRecoveryRate", "value": 1.2 }] }
+          ]
+        },
+        { "type": "flag", "set": { "met_don_ta": false } }
+      ]
+    },
+
+    {
+      "id": "MS_FIRST_PRAISE_OR_SHAME",
+      "when": { "type": "condition", "all": [{ "path": "counters.classSessions", "gte": 10 }] },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_day" },
+        { "type": "char", "id": "MR_TA", "pose": "stern", "nameplate": "Mr Ta" },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "stats.atar", "gte": 25 }],
+              "then": [
+                { "type": "say", "who": "MR_TA", "text": "不错。但还不够。" },
+                { "type": "add", "path": "stats.mood", "value": 3 }
+              ]
+            },
+            {
+              "else": [
+                { "type": "say", "who": "MR_TA", "text": "你在浪费天赋。或者你根本没有。" },
+                { "type": "add", "path": "stats.mood", "value": -6 },
+                { "type": "add", "path": "stats.health", "value": -2 }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "MS_MOCK_1",
+      "when": { "type": "date", "dateISO": "2026-05-15", "slotId": "CLASS_AM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_day" },
+        { "type": "char", "id": "MR_TA", "pose": "neutral", "nameplate": "Mr Ta" },
+        { "type": "say", "who": "MR_TA", "text": "模拟考。现在。不要找借口。" },
+        {
+          "type": "calc",
+          "set": [
+            { "path": "tmp.mockScore", "expr": "clamp(round(stats.atar + rand(-8, 8) - (100-stats.health)*0.08 - (20-stats.mood>0?(20-stats.mood)*0.4:0)), 0, 100)" }
+          ]
+        },
+        {
+          "type": "branch",
+          "branches": [
+            { "if": [{ "path": "tmp.mockScore", "gte": 85 }], "then": [{ "type": "say", "who": "MR_TA", "text": "Good. But not enough." }, { "type": "add", "path": "stats.mood", "value": -2 }] },
+            { "if": [{ "path": "tmp.mockScore", "gte": 70 }], "then": [{ "type": "say", "who": "MR_TA", "text": "你在原地踏步。" }, { "type": "add", "path": "stats.mood", "value": -5 }] },
+            { "else": [{ "type": "say", "who": "MR_TA", "text": "你想要未来吗？" }, { "type": "add", "path": "stats.mood", "value": -10 }, { "type": "add", "path": "stats.health", "value": -4 }] }
+          ]
+        },
+        { "type": "flag", "set": { "first_mock_done": true } }
+      ]
+    },
+
+    {
+      "id": "MS_HABIT_CHECK",
+      "when": { "type": "date", "dateISO": "2026-05-31", "slotId": "NIGHT" },
+      "scene": "HOME",
+      "script": [
+        { "type": "bg", "asset": "bg_home_night" },
+        {
+          "type": "calc",
+          "set": [
+            { "path": "tmp.totalActions", "expr": "counters.totalStudy + counters.totalRest + counters.totalPlay + 0.01" },
+            { "path": "tmp.studyRatio", "expr": "counters.totalStudy / (counters.totalStudy + counters.totalRest + counters.totalPlay + 0.01)" }
+          ]
+        },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "tmp.studyRatio", "gte": 0.55 }],
+              "then": [
+                { "type": "say", "who": "NARRATOR", "text": "你已经习惯了埋头做题的日子。没有休息，没有玩耍，只有公式和答案。" },
+                { "type": "flag", "set": { "habit_type": "grinder" } }
+              ]
+            },
+            {
+              "if": [{ "path": "tmp.studyRatio", "lte": 0.25 }],
+              "then": [
+                { "type": "say", "who": "NARRATOR", "text": "你总是在逃避。试卷上的空格越来越多，而你还在找别的事做。" },
+                { "type": "flag", "set": { "habit_type": "escapist" } }
+              ]
+            },
+            {
+              "else": [
+                { "type": "say", "who": "NARRATOR", "text": "学习、休息、偶尔放松——你试着在这条路上找到平衡。" },
+                { "type": "flag", "set": { "habit_type": "balanced" } }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "MS_RAIN_DAY",
+      "when": { "type": "date", "dateISO": "2026-07-03", "slotId": "AFTER_SCHOOL" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_rain" },
+        { "type": "char", "id": "MR_TA", "pose": "stern", "nameplate": "Mr Ta" },
+        { "type": "say", "who": "MR_TA", "text": "回家。学习。别把天气当成理由。" },
+        {
+          "type": "choice",
+          "id": "rain_choice",
+          "text": "雨很大。你要？",
+          "options": [
+            { "label": "回家刷题", "effects": [{ "op": "add", "path": "stats.atar", "value": 2 }, { "op": "add", "path": "stats.health", "value": -6 }, { "op": "add", "path": "stats.mood", "value": -8 }] },
+            { "label": "雨里走走", "effects": [{ "op": "flag", "set": { "rain_walk_once": true } }, { "op": "add", "path": "stats.mood", "value": 12 }, { "op": "add", "path": "stats.health", "value": 4 }, { "op": "add", "path": "stats.atar", "value": -1 }] },
+            { "label": "去打游戏", "effects": [{ "op": "add", "path": "stats.mood", "value": 16 }, { "op": "add", "path": "stats.atar", "value": -3 }, { "op": "add", "path": "stats.health", "value": -1 }] }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "MS_DEPRESSION_GATE",
+      "when": { "type": "condition", "all": [{ "path": "stats.mood", "lte": 20 }, { "path": "flags.depression_intro_seen", "eq": false }] },
+      "scene": "HOME",
+      "script": [
+        { "type": "bg", "asset": "bg_home_night" },
+        { "type": "screen", "fx": "desaturate" },
+        { "type": "say", "who": "NARRATOR", "text": "你盯着题目，却像隔着一层玻璃。" },
+        { "type": "say", "who": "NARRATOR", "text": "声音都变得很远。" },
+        { "type": "flag", "set": { "depression_intro_seen": true } }
+      ]
+    },
+
+    {
+      "id": "MS_SICK_GATE",
+      "when": { "type": "condition", "all": [{ "path": "stats.health", "lte": 20 }, { "path": "flags.sick_intro_seen", "eq": false }] },
+      "scene": "HOME",
+      "script": [
+        { "type": "bg", "asset": "bg_home_night" },
+        { "type": "screen", "fx": "blur" },
+        { "type": "say", "who": "NARRATOR", "text": "咳嗽像计时器，一下一下提醒你：身体不是无穷。" },
+        { "type": "flag", "set": { "sick_intro_seen": true } }
+      ]
+    },
+
+    {
+      "id": "MS_CONFRONT",
+      "when": { "type": "date", "dateISO": "2026-09-10", "slotId": "CLASS_PM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_evening" },
+        { "type": "char", "id": "MR_TA", "pose": "neutral", "nameplate": "Mr Ta" },
+        {
+          "type": "choice",
+          "id": "confront_choice",
+          "text": "你看着他，终于开口：",
+          "options": [
+            { "label": "Why only math?", "effects": [{ "op": "flag", "set": { "confronted_ta": true } }, { "op": "add", "path": "stats.mood", "value": -2 }] },
+            { "label": "ATAR is everything?", "effects": [{ "op": "flag", "set": { "confronted_ta": true } }, { "op": "add", "path": "stats.mood", "value": -1 }] },
+            { "label": "沉默", "effects": [{ "op": "add", "path": "stats.mood", "value": -4 }] }
+          ]
+        },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "stats.mood", "gte": 60 }, { "path": "stats.atar", "gte": 80 }],
+              "then": [
+                { "type": "char", "id": "MR_TA", "pose": "soft", "nameplate": "Don Ta" },
+                { "type": "say", "who": "MR_TA", "text": "ATAR 是数字。你不是。" },
+                { "type": "flag", "set": { "truth_route_unlocked": true, "met_don_ta": true } }
+              ]
+            },
+            {
+              "else": [
+                { "type": "char", "id": "MR_TA", "pose": "stern", "nameplate": "Mr Ta" },
+                { "type": "say", "who": "MR_TA", "text": "问题不会给你分数。" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "MS_MOCK_2",
+      "when": { "type": "date", "dateISO": "2026-10-15", "slotId": "CLASS_AM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_day" },
+        { "type": "char", "id": "MR_TA", "pose": "stern", "nameplate": "Mr Ta" },
+        { "type": "say", "who": "MR_TA", "text": "第二次模拟。你会看到自己变成了什么。" },
+        {
+          "type": "calc",
+          "set": [
+            { "path": "tmp.mock2Score", "expr": "clamp(round(stats.atar + rand(-5, 5) - (100-stats.health)*0.06 - (20-stats.mood>0?(20-stats.mood)*0.3:0)), 0, 100)" }
+          ]
+        },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "tmp.mock2Score", "gte": 80 }, { "path": "stats.mood", "lte": 35 }],
+              "then": [
+                { "type": "say", "who": "MR_TA", "text": "分数不错。但你的眼神很空。" },
+                { "type": "add", "path": "stats.mood", "value": -3 }
+              ]
+            },
+            {
+              "if": [{ "path": "tmp.mock2Score", "gte": 60 }, { "path": "stats.mood", "gte": 40 }],
+              "then": [
+                { "type": "say", "who": "MR_TA", "text": "稳定。不是最好，但稳定。" },
+                { "type": "add", "path": "stats.mood", "value": 1 }
+              ]
+            },
+            {
+              "if": [{ "path": "tmp.mock2Score", "lte": 59 }],
+              "then": [
+                { "type": "say", "who": "MR_TA", "text": "你知道这意味着什么。" },
+                { "type": "add", "path": "stats.mood", "value": -8 },
+                { "type": "add", "path": "stats.health", "value": -2 }
+              ]
+            },
+            {
+              "else": [
+                { "type": "say", "who": "MR_TA", "text": "结果就在那里。你自己看。" }
+              ]
+            }
+          ]
+        },
+        { "type": "flag", "set": { "second_mock_done": true } }
+      ]
+    },
+
+    {
+      "id": "MS_PERSONALITY_LOCK",
+      "when": { "type": "date", "dateISO": "2026-10-31", "slotId": "NIGHT" },
+      "scene": "HOME",
+      "script": [
+        { "type": "bg", "asset": "bg_home_night" },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "flags.truth_route_unlocked", "eq": true }],
+              "then": [
+                { "type": "say", "who": "NARRATOR", "text": "你开始明白——分数不是唯一的出口。也许从来不是。" },
+                { "type": "flag", "set": { "personality": "awakened" } }
+              ]
+            },
+            {
+              "if": [{ "path": "flags.habit_type", "eq": "grinder" }, { "path": "stats.mood", "lte": 40 }],
+              "then": [
+                { "type": "say", "who": "NARRATOR", "text": "你像机器一样运转。高效、精确、没有感情。" },
+                { "type": "flag", "set": { "personality": "machine" } }
+              ]
+            },
+            {
+              "if": [{ "path": "flags.habit_type", "eq": "escapist" }],
+              "then": [
+                { "type": "say", "who": "NARRATOR", "text": "你一直在躲避。但现实总会追上来。" },
+                { "type": "flag", "set": { "personality": "escapist" } }
+              ]
+            },
+            {
+              "else": [
+                { "type": "say", "who": "NARRATOR", "text": "不完美，但你还在路上。" },
+                { "type": "flag", "set": { "personality": "balanced" } }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "MS_FINAL_EXAM",
+      "when": { "type": "date", "dateISO": "2026-11-10", "slotId": "CLASS_AM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_exam_white" },
+        { "type": "screen", "fx": "vignette" },
+        { "type": "say", "who": "NARRATOR", "text": "纸是白的。时间很慢。" },
+        {
+          "type": "calc",
+          "set": [
+            { "path": "tmp.finalATAR", "expr": "clamp(round(stats.atar + rand(-3, 3) + stats.mood*0.03 + stats.health*0.02 - (20-stats.mood>0?(20-stats.mood)*0.25:0) - (20-stats.health>0?(20-stats.health)*0.35:0), 2), 0, 99.95)" }
+          ]
+        },
+        { "type": "set", "path": "stats.atar", "valueFrom": "tmp.finalATAR" }
+      ]
+    },
+
+    {
+      "id": "MS_GRADUATION",
+      "when": { "type": "date", "dateISO": "2026-12-05", "slotId": "CLASS_PM" },
+      "scene": "CLASSROOM",
+      "script": [
+        { "type": "bg", "asset": "bg_classroom_sunset" },
+        {
+          "type": "branch",
+          "branches": [
+            {
+              "if": [{ "path": "stats.health", "lte": 0 }],
+              "then": [{ "type": "ending", "id": "END_DEAD", "name": "过劳死亡", "text": "你没走到终点。" }]
+            },
+            {
+              "if": [{ "path": "stats.mood", "lte": 0 }],
+              "then": [{ "type": "ending", "id": "END_DEPRESSED", "name": "抑郁崩溃", "text": "你放弃了数学，数学也放弃了你。" }]
+            },
+            {
+              "if": [{ "path": "stats.atar", "gte": 99.95 }, { "path": "stats.mood", "lte": 40 }],
+              "then": [{ "type": "ending", "id": "END_MACHINE", "name": "99.95 机器", "text": "你赢了，但你不确定赢了什么。" }]
+            },
+            {
+              "if": [{ "path": "flags.truth_route_unlocked", "eq": true }, { "path": "flags.rain_walk_once", "eq": true }, { "path": "stats.atar", "gte": 90 }, { "path": "stats.mood", "gte": 50 }],
+              "then": [{ "type": "ending", "id": "END_TRUTH", "name": "理解", "text": "ATAR 是数字。你不是。" }]
+            },
+            {
+              "if": [{ "path": "stats.atar", "gte": 95 }, { "path": "stats.mood", "gte": 60 }, { "path": "stats.health", "gte": 60 }],
+              "then": [{ "type": "ending", "id": "END_WHOLE", "name": "高分但完整", "text": "你不是满分，但你是完整的。" }]
+            },
+            {
+              "else": [{ "type": "ending", "id": "END_NORMAL", "name": "普通毕业", "text": "你走出教室。世界终于不只有数学。" }]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "randomEvents": {
+    "CLASS_AM": ["EV_POPQUIZ", "EV_CALLED_UP", "EV_PRAISE", "EV_SHAME", "EV_DISTRACTED"],
+    "CLASS_PM": ["EV_CALLED_UP", "EV_SLEEPY", "EV_PRAISE", "EV_SHAME", "EV_DISTRACTED"],
+    "EVENING": ["EV_SELF_DOUBT", "EV_SMALL_WIN"],
+    "NIGHT": ["EV_SELF_DOUBT", "EV_SMALL_WIN"]
+  },
+
+  "events": [
+    {
+      "id": "EV_POPQUIZ",
+      "weight": 12,
+      "trigger": { "all": [{ "path": "runtime.sceneId", "eq": "CLASSROOM" }] },
+      "script": [
+        { "type": "say", "who": "MR_TA", "text": "随堂测。现在。" },
+        { "type": "calc", "set": [{ "path": "tmp.ok", "expr": "rand(0,100) < (stats.atar*0.6 + stats.mood*0.2 + stats.health*0.2)" }] },
+        {
+          "type": "branch",
+          "branches": [
+            { "if": [{ "path": "tmp.ok", "eq": true }], "then": [{ "type": "add", "path": "stats.atar", "value": 0.8 }, { "type": "add", "path": "stats.mood", "value": 2 }] },
+            { "else": [{ "type": "add", "path": "stats.mood", "value": -4 }, { "type": "add", "path": "stats.health", "value": -1 }] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EV_CALLED_UP",
+      "weight": 10,
+      "trigger": { "all": [{ "path": "runtime.sceneId", "eq": "CLASSROOM" }] },
+      "script": [
+        { "type": "say", "who": "MR_TA", "text": "你，上来做这道题。" },
+        { "type": "calc", "set": [{ "path": "tmp.ok", "expr": "rand(0,100) < (stats.atar*0.5 + stats.mood*0.3 + stats.health*0.2)" }] },
+        {
+          "type": "branch",
+          "branches": [
+            { "if": [{ "path": "tmp.ok", "eq": true }], "then": [{ "type": "say", "who": "MR_TA", "text": "坐下。" }, { "type": "add", "path": "stats.atar", "value": 0.5 }, { "type": "add", "path": "stats.mood", "value": 1 }] },
+            { "else": [{ "type": "say", "who": "MR_TA", "text": "回去复习。" }, { "type": "add", "path": "stats.mood", "value": -3 }] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "EV_PRAISE",
+      "weight": 6,
+      "trigger": { "all": [{ "path": "stats.atar", "gte": 60 }] },
+      "script": [
+        { "type": "say", "who": "MR_TA", "text": "继续保持。" },
+        { "type": "add", "path": "stats.mood", "value": 3 }
+      ]
+    },
+    {
+      "id": "EV_SHAME",
+      "weight": 8,
+      "trigger": { "all": [{ "path": "stats.atar", "lte": 40 }] },
+      "script": [
+        { "type": "say", "who": "MR_TA", "text": "你在浪费所有人的时间。" },
+        { "type": "add", "path": "stats.mood", "value": -5 },
+        { "type": "add", "path": "stats.health", "value": -1 }
+      ]
+    },
+    {
+      "id": "EV_SLEEPY",
+      "weight": 10,
+      "trigger": { "all": [{ "path": "stats.health", "lte": 50 }] },
+      "script": [
+        { "type": "say", "who": "NARRATOR", "text": "你的眼皮越来越沉。" },
+        { "type": "add", "path": "stats.health", "value": 2 },
+        { "type": "add", "path": "stats.atar", "value": -0.3 }
+      ]
+    },
+    {
+      "id": "EV_SELF_DOUBT",
+      "weight": 8,
+      "weightExpr": "8 + (counters.studyStreak >= 5 ? 8 : 0)",
+      "trigger": { "all": [{ "path": "stats.mood", "lte": 40 }] },
+      "script": [
+        { "type": "say", "who": "NARRATOR", "text": "你真的能做到吗？" },
+        { "type": "add", "path": "stats.mood", "value": -3 },
+        { "type": "add", "path": "stats.health", "value": -1 }
+      ]
+    },
+    {
+      "id": "EV_SMALL_WIN",
+      "weight": 6,
+      "trigger": { "all": [{ "path": "counters.studyStreak", "gte": 2 }, { "path": "stats.mood", "gte": 30 }] },
+      "script": [
+        { "type": "say", "who": "NARRATOR", "text": "你解出了一道难题。小小的成就感。" },
+        { "type": "add", "path": "stats.mood", "value": 4 },
+        { "type": "add", "path": "stats.atar", "value": 0.3 }
+      ]
+    },
+    {
+      "id": "EV_DISTRACTED",
+      "weight": 9,
+      "trigger": { "all": [{ "path": "stats.mood", "lte": 50 }, { "path": "runtime.sceneId", "eq": "CLASSROOM" }] },
+      "script": [
+        { "type": "say", "who": "NARRATOR", "text": "你的思绪飘到了窗外。黑板上的公式变得模糊。" },
+        { "type": "add", "path": "stats.atar", "value": -0.5 },
+        { "type": "add", "path": "stats.mood", "value": -1 }
+      ]
+    }
+  ]
+}

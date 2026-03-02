@@ -1,18 +1,52 @@
 {
-  "backgrounds": [
-    { "id": "bg-classroom", "path": "assets/bg-classroom.svg" },
-    { "id": "bg-corridor", "path": "assets/bg-corridor.svg" },
-    { "id": "bg-field", "path": "assets/bg-field.svg" },
-    { "id": "bg-clubroom", "path": "assets/bg-clubroom.svg" },
-    { "id": "bg-bedroom", "path": "assets/bg-bedroom.svg" },
-    { "id": "bg-internet_cafe", "path": "assets/bg-internet_cafe.svg" },
-    { "id": "bg-map", "path": "assets/bg-map.svg" }
-  ],
-  "characters": [
-    { "id": "char-player", "path": "assets/char-player.svg" },
-    { "id": "char-teacher", "path": "assets/char-teacher.svg" },
-    { "id": "char-classmate", "path": "assets/char-classmate.svg" },
-    { "id": "char-club_senior", "path": "assets/char-club_senior.svg" },
-    { "id": "char-cafe_staff", "path": "assets/char-cafe_staff.svg" }
+  "backgrounds": {
+    "bg_classroom_day": "bg/bg_classroom_day.webp",
+    "bg_classroom_evening": "bg/bg_classroom_evening.webp",
+    "bg_classroom_rain": "bg/bg_classroom_rain.webp",
+    "bg_classroom_sunset": "bg/bg_classroom_sunset.webp",
+    "bg_home_night": "bg/bg_home_night.webp",
+    "bg_exam_white": null
+  },
+  "characters": {
+    "MR_TA": {
+      "neutral": "char/char_mr_ta_neutral.webp",
+      "stern": "char/char_mr_ta_stern.webp",
+      "soft": "char/char_mr_ta_soft.webp"
+    }
+  },
+  "sfx": {
+    "click": "sfx/sfx_click.wav",
+    "choice": "sfx/sfx_choice.wav",
+    "save": "sfx/sfx_save.wav",
+    "transition": "sfx/sfx_transition.wav",
+    "typewriter": "sfx/sfx_typewriter.wav",
+    "rain_loop": "sfx/rain_loop.wav",
+    "heartbeat": "sfx/heartbeat.wav"
+  },
+  "credits": [
+    {
+      "asset": "All backgrounds",
+      "source": "AI-generated (placeholder)",
+      "license": "Project-internal use",
+      "note": "Replace with CC0/commercial-use VN backgrounds when available"
+    },
+    {
+      "asset": "Character sprites",
+      "source": "AI-generated (placeholder)",
+      "license": "Project-internal use",
+      "note": "Replace with Potat0Master Sensei Pack or similar CC0 sprites"
+    },
+    {
+      "asset": "UI SFX",
+      "source": "Procedurally generated (placeholder)",
+      "license": "Project-internal use",
+      "note": "Replace with Kenney UI Audio (CC0) from kenney.nl"
+    },
+    {
+      "asset": "Rain/Heartbeat ambient",
+      "source": "Procedurally generated (placeholder)",
+      "license": "Project-internal use",
+      "note": "Replace with OpenGameArt CC0 ambient sounds"
+    }
   ]
 }

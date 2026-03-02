@@ -1,5 +1,6 @@
 /**
- * 对接后端：登录、存档、行动/事件日志、config、story、广播消息
+ * 统一 API client：登录、存档、行动/事件日志、config、story、广播消息
+ * 兼容新格式 { ok, data } 和旧格式
  */
 (function (global) {
   var BASE = '';
@@ -13,12 +14,34 @@
     return opts;
   }
 
+  var AUTH_PATHS = ['/api/auth/', '/api/me'];
+  function isAuthPath(p) {
+    for (var i = 0; i < AUTH_PATHS.length; i++) {
+      if (p.indexOf(AUTH_PATHS[i]) === 0) return true;
+    }
+    return false;
+  }
+
   function api(path, method, body) {
     return fetch(BASE + path, fetchOpts(method, body)).then(function (r) {
-      if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || r.statusText); });
       var ct = r.headers.get('Content-Type');
-      if (ct && ct.indexOf('json') >= 0) return r.json();
-      return r.text();
+      if (!ct || ct.indexOf('json') < 0) {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.text();
+      }
+      return r.json().then(function (j) {
+        if (!r.ok || j.ok === false) {
+          var msg = j.error ? (j.error.message || j.error) : r.statusText;
+          var err = new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+          err.code = j.error && j.error.code ? j.error.code : String(r.status);
+          err.status = r.status;
+          if (r.status === 401 && !isAuthPath(path) && global.EventBus) global.EventBus.emit('auth:expired');
+          if (r.status === 429 && global.EventBus) global.EventBus.emit('toast', { msg: '操作过快，请稍后再试', type: 'error' });
+          if (r.status >= 500 && global.EventBus) global.EventBus.emit('toast', { msg: '服务异常，请稍后再试', type: 'error' });
+          throw err;
+        }
+        return j.data !== undefined ? j.data : j;
+      });
     });
   }
 
@@ -47,12 +70,9 @@
     action: function (payload) {
       return api('/api/logs/action', 'POST', {
         save_slot: payload.saveSlot != null ? payload.saveSlot : 0,
-        date_iso: payload.date_iso,
-        time_block: payload.time_block,
-        location: payload.location,
-        action_type: payload.action_type || 'choice',
-        node_id: payload.node_id || null,
-        choice_id: payload.choice_id || null,
+        date_iso: payload.date_iso, time_block: payload.time_block,
+        location: payload.location, action_type: payload.action_type || 'choice',
+        node_id: payload.node_id || null, choice_id: payload.choice_id || null,
         delta_json: payload.delta ? JSON.stringify(payload.delta) : null,
         state_before_json: payload.stateBefore ? JSON.stringify(payload.stateBefore) : null,
         state_after_json: payload.stateAfter ? JSON.stringify(payload.stateAfter) : null
@@ -60,10 +80,8 @@
     },
     event: function (payload) {
       return api('/api/logs/event', 'POST', {
-        date_iso: payload.date_iso,
-        time_block: payload.time_block,
-        location: payload.location,
-        event_id: payload.event_id,
+        date_iso: payload.date_iso, time_block: payload.time_block,
+        location: payload.location, event_id: payload.event_id,
         event_type: payload.event_type,
         detail_json: payload.detail ? JSON.stringify(payload.detail) : null
       });
@@ -120,17 +138,8 @@
   };
 
   global.API = {
-    BASE: BASE,
-    api: api,
-    auth: auth,
-    saves: saves,
-    logs: logs,
-    leaderboard: leaderboard,
-    board: board,
-    calendar: calendar,
-    diary: diary,
-    config: config,
-    story: story,
-    messages: messages
+    BASE: BASE, api: api, auth: auth, saves: saves, logs: logs,
+    leaderboard: leaderboard, board: board, calendar: calendar,
+    diary: diary, config: config, story: story, messages: messages
   };
 })(typeof window !== 'undefined' ? window : global);

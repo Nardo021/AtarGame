@@ -4,6 +4,9 @@
   "description": "ATAR 养成 - Web Galgame/视觉小说",
   "scripts": {
     "start": "node server/server.js",
+    "migrate": "node server/scripts/migrate.js",
+    "seed-balance": "node server/scripts/seed-balance.js",
+    "prestart": "node server/scripts/migrate.js",
     "install:server": "cd server && npm install"
   },
   "private": true
